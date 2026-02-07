@@ -1,9 +1,18 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Bell, Motorbike, Droplet, Zap } from "lucide-react-native";
-import StatsCard from "@/components/CircularStats";
-import CircularWidget from "@/components/CircularStats";
-
+import CircularWidget from "@/components/home/CircularStats";
+import MotorCard from "@/components/home/MotorCards";
+import { useState } from "react";
 export default function HomeScreen() {
+    const [motor, setMotor] = useState("Yamaha Scorpio")
+    const [stats, setStats] = useState({
+        oil: { current: 500, max: 2000 },
+        spark: { current: 236, max: 10000 }
+    });
+
+    const changeMotor = () => {
+        setMotor(motor === "Yamaha Scorpio" ? "Honda Tiger" : "Yamaha Scorpio")
+    }
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1, padding: 24, backgroundColor: "#131313" }}
@@ -12,8 +21,8 @@ export default function HomeScreen() {
             {/* Header */}
             <View className="flex-row items-center justify-between mb-8 pt-3">
                 <View className="">
-                    <Text className="text-gray-500 mb-2">Welcome Back</Text>
-                    <Text className="text-white text-2xl font-maisonBold">Raffi Nauval</Text>
+                    <Text className="text-gray-500 mb-1">Welcome Back</Text>
+                    <Text className="text-white text-2xl font-maisonBold" adjustsFontSizeToFit>Raffi Nauval</Text>
                 </View>
                 <View>
                     <TouchableOpacity className="p-3 border border-gray-500 rounded-[10px]">
@@ -24,25 +33,19 @@ export default function HomeScreen() {
 
             {/* Stats Cards */}
             <View className="space-y-4 mb-12">
-                <View className="flex-row items-center justify-between bg-[#212121] mb-4 rounded-3xl p-6 shadow-md">
-                    <View>
-                        <Text className="text-neutral-400 font-maison text-sm">Motor Aktif</Text>
-                        <Text className="text-white font-maisonBold text-2xl mt-1">Yamaha Scorpio 225</Text>
-                    </View>
-                    <Motorbike size={36} color="#34D399" />
-                </View>
+                <MotorCard motor={motor} onChangeMotor={changeMotor} />
 
                 <View className="flex-row gap-4 ">
                     <CircularWidget
-                        current={500}
-                        max={2000}
+                        current={stats.oil.current}
+                        max={stats.oil.max}
                         label="Oil Change"
                         color="#34D399"
                         Icon={Droplet}
                     />
                     <CircularWidget
-                        current={1500}
-                        max={3000}
+                        current={stats.spark.current}
+                        max={stats.spark.max}
                         label="Spark Plug"
                         color="#FACC15"
                         Icon={Zap}
