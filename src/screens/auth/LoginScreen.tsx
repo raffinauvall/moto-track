@@ -57,11 +57,17 @@ export default function LoginScreen({navigation}: any) {
         <Text className="text-neutral-400 font-maison text-base">
           Belum punya akun?
         </Text>
-        <Text className="text-emerald-400 font-maisonBold ml-2">
-          Register
-        </Text>
-      </View>
 
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Register")}
+          activeOpacity={0.7}
+        >
+          <Text className="text-emerald-400 font-maisonBold ml-2">
+            Register
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
     </View>
   );
 }

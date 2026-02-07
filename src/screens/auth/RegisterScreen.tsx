@@ -1,36 +1,37 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { User, Mail, Lock } from "lucide-react-native";
 
 export default function RegisterScreen({ navigation }: any) {
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 24, backgroundColor: '#111827' }}
-      showsVerticalScrollIndicator={false}
-    >
+    <View className="flex-1 bg-neutral-950 px-6 justify-center">
+
       {/* Header */}
       <View className="mb-12">
-        <Text className="text-4xl font-maisonBold text-white tracking-wide mb-2">
-          Create Account
+        <Text className="text-4xl font-maisonBold text-white tracking-wide">
+          Buat Akun Baru
         </Text>
-        <Text className="text-neutral-400 font-maison text-base">
-          Daftar dulu biar bisa mulai tracking motor kamu
+        <Text className="text-neutral-400 font-maison text-base mt-2">
+          Daftar untuk mulai menggunakan Moto Tracker
         </Text>
       </View>
 
       {/* Form */}
-      <View className="space-y-5">
-        {/* Name */}
-        <View className="flex-row items-center bg-neutral-900 border border-neutral-800 rounded-3xl px-4 py-4 shadow-md">
+      <View className="space-y-6">
+
+        {/* Nama */}
+        <Text className="text-white mb-2">Nama Lengkap</Text>
+        <View className="flex-row items-center mb-5 border border-neutral-800 rounded-2xl px-4 py-4 shadow-md">
           <User size={22} color="#a3a3a3" />
           <TextInput
-            placeholder="Nama Lengkap"
+            placeholder="Nama lengkap"
             placeholderTextColor="#737373"
             className="flex-1 ml-3 text-white font-maison text-base"
           />
         </View>
 
         {/* Email */}
-        <View className="flex-row items-center bg-neutral-900 border border-neutral-800 rounded-3xl px-4 py-4 shadow-md">
+        <Text className="text-white mb-2">Email</Text>
+        <View className="flex-row items-center mb-5 border border-neutral-800 rounded-2xl px-4 py-4 shadow-md">
           <Mail size={22} color="#a3a3a3" />
           <TextInput
             placeholder="email@example.com"
@@ -40,7 +41,8 @@ export default function RegisterScreen({ navigation }: any) {
         </View>
 
         {/* Password */}
-        <View className="flex-row items-center bg-neutral-900 border border-neutral-800 rounded-3xl px-4 py-4 shadow-md">
+        <Text className="text-white mb-2">Password</Text>
+        <View className="flex-row items-center border border-neutral-800 rounded-2xl px-4 py-4 shadow-md">
           <Lock size={22} color="#a3a3a3" />
           <TextInput
             placeholder="••••••••"
@@ -49,11 +51,12 @@ export default function RegisterScreen({ navigation }: any) {
             className="flex-1 ml-3 text-white font-maison text-base"
           />
         </View>
+
       </View>
 
       {/* Register Button */}
       <TouchableOpacity
-        className="mt-10 py-5 rounded-3xl shadow-2xl bg-gradient-to-r from-emerald-500 to-green-400"
+        className="mt-5 bg-emerald-500 py-4 rounded-[10px] shadow-xl"
         onPress={() => navigation.navigate("Login")}
       >
         <Text className="text-center font-maisonBold text-black text-lg">
@@ -62,17 +65,24 @@ export default function RegisterScreen({ navigation }: any) {
       </TouchableOpacity>
 
       {/* Footer */}
-      <View className="flex-row justify-center mt-8 mb-12">
+      <View className="flex-row justify-center mt-5">
         <Text className="text-neutral-400 font-maison text-base">
           Sudah punya akun?
         </Text>
-        <Text
-          className="text-emerald-400 font-maisonBold ml-2"
+
+        <TouchableOpacity
           onPress={() => navigation.navigate("Login")}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
         >
-          Login
-        </Text>
+          <Text className="text-emerald-400 font-maisonBold ml-2">
+            Login
+          </Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+
+
+
+    </View>
   );
 }
