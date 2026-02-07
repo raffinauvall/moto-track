@@ -45,7 +45,7 @@ export default function LoginScreen({navigation}: any) {
 
       {/* Login Button */}
       <TouchableOpacity className="mt-5 bg-emerald-500 py-4 rounded-[10px] shadow-xl"
-      onPress={() => navigation.navigate("Home")}
+      onPress={() => navigation.navigate("MainTabs")}
       >
         <Text className="text-center font-maisonBold text-black text-lg">
           Login
@@ -67,7 +67,7 @@ export default function LoginScreen({navigation}: any) {
           </Text>
         </TouchableOpacity>
       </View>
-      
+
     </View>
   );
 }
