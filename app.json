@@ -31,6 +31,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.raffinauvaltaqy.mototrack"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00600e91-7a93-40dd-88ce-addd8c9813a5"
       }
     }
   }
