@@ -1,7 +1,27 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Mail, Lock } from "lucide-react-native";
+import { useState } from "react";
+import { supabase } from "@/api/supabaseClient";
 
 export default function LoginScreen({navigation}: any) {
+  const [ email, setEmail ] = useState("");
+  const [ password, setPassword ] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      Alert.alert(
+        "Login Berhasil",
+        `Selamat datang, ${data.user?.user_metadata.name || "User"}`
+      );
+
+      navigation.navigate("MainTabs"); // navigasi setelah login
+    } catch (err: any) {
+      Alert.alert("Login Gagal", err.message || "Cek email & password");
+    }
+  };
   return (
     <View className="flex-1 bg-neutral-950 px-6 justify-center">
 
@@ -26,6 +46,8 @@ export default function LoginScreen({navigation}: any) {
             placeholder="email@example.com"
             placeholderTextColor="#737373"
             className="flex-1 ml-3 text-white font-maison text-base"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -38,6 +60,8 @@ export default function LoginScreen({navigation}: any) {
             placeholderTextColor="#737373"
             secureTextEntry
             className="flex-1 ml-3 text-white font-maison text-base"
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
@@ -45,7 +69,7 @@ export default function LoginScreen({navigation}: any) {
 
       {/* Login Button */}
       <TouchableOpacity className="mt-5 bg-emerald-500 py-4 rounded-[10px] shadow-xl"
-      onPress={() => navigation.navigate("MainTabs")}
+      onPress={handleLogin}
       >
         <Text className="text-center font-maisonBold text-black text-lg">
           Login
