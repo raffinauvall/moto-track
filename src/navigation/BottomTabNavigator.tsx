@@ -1,74 +1,98 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React, { useState } from "react";
+import { View, Dimensions, TouchableOpacity } from "react-native";
+import { TabView, SceneMap } from "react-native-tab-view";
+import Animated, { useSharedValue, withSpring, useAnimatedStyle } from "react-native-reanimated";
+import { Home, Bike, Clock, User } from "lucide-react-native";
+
 import HomeScreen from "../screens/home/HomeScreen";
-import { Home, Clock, User, Bike } from "lucide-react-native";
+import MotorScreen from "@/screens/motor/MotorScreen";
 
-const Tab = createBottomTabNavigator();
+const initialLayout = { width: Dimensions.get("window").width };
+type AnimatedTabIconProps = {
+  focused: boolean;
+  Icon: React.FC<{ color: string; size: number }>;
+};
 
-export default function BottomTabNavigator() {
-    return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-                tabBarShowLabel: false, // ❌ hapus tulisan
-                tabBarActiveTintColor: "#34D399",
-                tabBarInactiveTintColor: "#9CA3AF",
-                tabBarStyle: {
-                    position: "absolute",
-                    marginHorizontal: 30,
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                    elevation: 5,
-                    backgroundColor: "#212121",
-                    borderRadius: 25,
-                    height: 70,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 5 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 5,
-                    borderTopWidth: 0,
-                    paddingHorizontal: 10,
-                    paddingVertical: 30,
-                },
-            }}
-        >
-            <Tab.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <Home color={color} size={28} style={{ marginTop: 35 }} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Motor"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <Bike color={color} size={28} style={{ marginTop: 35 }} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="History"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <Clock color={color} size={28} style={{ marginTop: 35 }} />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <User color={color} size={28} style={{ marginTop: 35 }} />
-                    ),
-                }}
-            />
+const AnimatedTabIcon: React.FC<AnimatedTabIconProps> = ({ focused, Icon }) => {
+  const scale = useSharedValue(focused ? 1.3 : 1);
 
-        </Tab.Navigator>
-    );
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  if (focused) scale.value = withSpring(1.3);
+  else scale.value = withSpring(1);
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Icon color={focused ? "#34D399" : "#9CA3AF"} size={28} />
+    </Animated.View>
+  );
+};
+
+
+// Tab scenes
+const renderScene = SceneMap({
+  home: HomeScreen,
+  motor: MotorScreen,
+  history: HomeScreen,
+  profile: HomeScreen,
+});
+
+export default function AnimatedBottomTab() {
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: "home", icon: Home },
+    { key: "motor", icon: Bike },
+    { key: "history", icon: Clock },
+    { key: "profile", icon: User },
+  ]);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#131313" }}>
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={initialLayout}
+        renderTabBar={() => null} // custom tab
+      />
+
+      {/* Custom Bottom Tab */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          right: 20,
+          flexDirection: "row",
+          justifyContent: "space-around",
+          backgroundColor: "#212121",
+          borderRadius: 25,
+          height: 70,
+          alignItems: "center",
+          elevation: 5,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 5 },
+          shadowOpacity: 0.1,
+          shadowRadius: 5,
+        }}
+      >
+        {routes.map((route, i) => {
+          const focused = index === i;
+
+          return (
+            <TouchableOpacity
+              key={i}
+              activeOpacity={0.8}
+              onPress={() => setIndex(i)}
+              style={{ alignItems: "center", justifyContent: "center" }}
+            >
+              <AnimatedTabIcon focused={focused} Icon={route.icon} />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
 }
