@@ -2,9 +2,11 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Bell, Motorbike, Droplet, Zap } from "lucide-react-native";
 import CircularWidget from "@/components/home/CircularStats";
 import MotorCard from "@/components/home/MotorCards";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/home/Header";
+import { supabase } from "@/api/supabaseClient";
 export default function HomeScreen() {
+    const [userName, setUserName] = useState("User");
     const [motor, setMotor] = useState("Yamaha Scorpio")
     const [stats, setStats] = useState({
         oil: { current: 500, max: 2000 },
@@ -14,12 +16,24 @@ export default function HomeScreen() {
     const changeMotor = () => {
         setMotor(motor === "Yamaha Scorpio" ? "Honda Tiger" : "Yamaha Scorpio")
     }
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data, error } = await supabase.auth.getUser();
+            if (error) {
+                console.log(error.message);
+                return;
+            }
+            setUserName(data.user?.user_metadata.name || "User");
+        };
+        fetchUser();
+    }, []);
+
     return (
         <ScrollView
             contentContainerStyle={{ flexGrow: 1, padding: 24, backgroundColor: "#131313" }}
             showsVerticalScrollIndicator={false}
         >
-            <Header />
+            <Header name={userName} />
 
             {/* Stats Cards */}
             <View className="space-y-4 mb-5">

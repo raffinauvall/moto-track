@@ -1,13 +1,13 @@
 import { Bell } from "lucide-react-native"
 import { View, Text, TouchableOpacity } from "react-native"
 
-export default function Header(){
+export default function Header({ name }: {name: string}){
     return(
        
                     <View className="flex-row items-center justify-between mb-8 pt-4">
                         <View className="">
                             <Text className="text-gray-500 mb-1">Welcome Back</Text>
-                            <Text className="text-white text-2xl font-maisonBold" adjustsFontSizeToFit>Raffi Nauval</Text>
+                            <Text className="text-white text-2xl font-maisonBold" adjustsFontSizeToFit>{name}</Text>
                         </View>
                         <View>
                             <TouchableOpacity className="p-3 border border-gray-500 rounded-[10px]">
