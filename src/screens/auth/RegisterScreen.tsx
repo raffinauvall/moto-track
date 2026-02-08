@@ -1,7 +1,23 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { User, Mail, Lock } from "lucide-react-native";
+import { register } from "@/api/auth/register";
 
 export default function RegisterScreen({ navigation }: any) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleRegister = async () => {
+    try {
+      await register(name, email, password);
+      Alert.alert("Success", "Akun berhasil dibuat! Cek email untuk verifikasi.");
+      navigation.navigate("Login");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Gagal membuat akun");
+    }
+  };
+
   return (
     <View className="flex-1 bg-neutral-950 px-6 justify-center">
 
@@ -26,6 +42,8 @@ export default function RegisterScreen({ navigation }: any) {
             placeholder="Nama lengkap"
             placeholderTextColor="#737373"
             className="flex-1 ml-3 text-white font-maison text-base"
+            value={name}
+            onChangeText={setName} // <- update state
           />
         </View>
 
@@ -37,6 +55,8 @@ export default function RegisterScreen({ navigation }: any) {
             placeholder="email@example.com"
             placeholderTextColor="#737373"
             className="flex-1 ml-3 text-white font-maison text-base"
+            value={email}
+            onChangeText={setEmail} // <- update state
           />
         </View>
 
@@ -49,6 +69,8 @@ export default function RegisterScreen({ navigation }: any) {
             placeholderTextColor="#737373"
             secureTextEntry
             className="flex-1 ml-3 text-white font-maison text-base"
+            value={password}
+            onChangeText={setPassword} // <- update state
           />
         </View>
 
@@ -57,7 +79,7 @@ export default function RegisterScreen({ navigation }: any) {
       {/* Register Button */}
       <TouchableOpacity
         className="mt-5 bg-emerald-500 py-4 rounded-[10px] shadow-xl"
-        onPress={() => navigation.navigate("Login")}
+        onPress={handleRegister} // <- panggil function register
       >
         <Text className="text-center font-maisonBold text-black text-lg">
           Register
@@ -80,9 +102,6 @@ export default function RegisterScreen({ navigation }: any) {
           </Text>
         </TouchableOpacity>
       </View>
-
-
-
     </View>
   );
 }
