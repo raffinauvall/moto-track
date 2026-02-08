@@ -14,9 +14,6 @@ export default function App() {
     "MaisonNeue-Mono": require("./assets/fonts/maison/Maison_Neue_Mono.ttf"),
   });
 
-   return (
-    <NavigationContainer>
-      <BottomTabNavigator />
-    </NavigationContainer>
-  );
+   return <AppNavigator/>
+  
 }
