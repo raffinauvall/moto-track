@@ -6,6 +6,7 @@ import { Home, Bike, Clock, User } from "lucide-react-native";
 
 import HomeScreen from "../screens/home/HomeScreen";
 import MotorScreen from "@/screens/motor/MotorScreen";
+import ProfileScreen from "@/screens/profile/ProfileScreen";
 
 const initialLayout = { width: Dimensions.get("window").width };
 type AnimatedTabIconProps = {
@@ -36,7 +37,7 @@ const renderScene = SceneMap({
   home: HomeScreen,
   motor: MotorScreen,
   history: HomeScreen,
-  profile: HomeScreen,
+  profile: ProfileScreen,
 });
 
 export default function AnimatedBottomTab() {

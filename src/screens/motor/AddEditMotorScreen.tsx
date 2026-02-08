@@ -1,26 +1,41 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
+import { AddMotor } from "@/api/motor/addMotor";
 
-export default function AddEditMotorScreen({ navigation, route }: any) {
-  const motor = route.params?.motor;
+export default function AddEditMotorScreen({ navigation, route, user }: any) {
   const onSave = route.params?.onSave;
 
-  const [name, setName] = useState(motor?.name || "");
-  const [health, setHealth] = useState(
-    motor?.health?.toString() || "100"
-  );
+  const [name, setName] = useState("");
+  const [health, setHealth] = useState("100");
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name || !health) return;
 
-    onSave({
-      id: motor?.id || Date.now(),
+    setLoading(true);
+
+    // 1️⃣ Optimistic UI: buat motor sementara
+    const tempMotor = {
+      id: Date.now(), // temporary ID
       name,
       health: Number(health),
-    });
+    };
+    onSave(tempMotor); // langsung tampil di list
 
-    navigation.goBack();
+    try {
+      // 2️⃣ Insert motor + default components ke Supabase
+      const motor = await AddMotor(user.id, name, Number(health));
+
+      // 3️⃣ Update state lagi kalau mau pakai ID asli dari DB
+      onSave(motor);
+    } catch (err) {
+      console.log(err);
+      // optional: rollback UI kalau error
+    } finally {
+      setLoading(false);
+      navigation.goBack();
+    }
   };
 
   return (
@@ -30,9 +45,7 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={26} color="#fff" />
         </TouchableOpacity>
-        <Text className="text-white text-xl font-maisonBold ml-4">
-          {motor ? "Edit Motor" : "Add Motor"}
-        </Text>
+        <Text className="text-white text-xl font-maisonBold ml-4">Add Motor</Text>
       </View>
 
       {/* Name */}
@@ -59,10 +72,11 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
       {/* Save */}
       <TouchableOpacity
         onPress={handleSave}
-        className="bg-[#34D399] py-5 rounded-3xl mt-10"
+        className={`bg-[#34D399] py-5 rounded-3xl mt-10 ${loading ? "opacity-60" : ""}`}
+        disabled={loading}
       >
         <Text className="text-black font-maisonBold text-center text-lg">
-          Save Motor
+          {loading ? "Saving..." : "Save Motor"}
         </Text>
       </TouchableOpacity>
     </View>
