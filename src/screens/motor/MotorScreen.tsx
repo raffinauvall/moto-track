@@ -13,21 +13,22 @@ import MotorHeader from "@/components/motor/MotorHeader";
 
 // API
 import { GetMotor } from "@/api/motor/getMotor";
-import { AddMotor } from "@/api/motor/addMotor";
-import { UpdateMotor } from "@/api/motor/updateMotor";
 import { DeleteMotor } from "@/api/motor/deleteMotor";
 import { getComponents } from "@/api/motorComponent/getComponents";
 
-// Hitung health dari components
+// ======================
+// Helpers
+// ======================
 const calcHealth = (components: any[]) => {
   if (!components?.length) return 100;
   const ratios = components.map(c =>
     Math.max(0, 1 - c.current_value / c.max_value)
   );
-  return Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100);
+  return Math.round(
+    (ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100
+  );
 };
 
-// Helper status
 const getStatus = (value: number) => {
   if (value >= 80)
     return { label: "GOOD", color: "#22C55E", note: "Ready for daily use" };
@@ -44,13 +45,15 @@ const getStatus = (value: number) => {
   };
 };
 
-// Status icon
 const StatusIcon = ({ value }: { value: number }) => {
   if (value >= 80) return <CheckCircle size={20} color="#22C55E" />;
   if (value >= 50) return <AlertTriangle size={20} color="#FACC15" />;
   return <XCircle size={20} color="#EF4444" />;
 };
 
+// ======================
+// Screen
+// ======================
 export default function MotorScreen() {
   const navigation = useNavigation<any>();
   const [motors, setMotors] = useState<any[]>([]);
@@ -60,18 +63,25 @@ export default function MotorScreen() {
     fetchMotors();
   }, []);
 
+  // 🔥 AUTO REFRESH SAAT BALIK KE SCREEN
+  useEffect(() => {
+    const unsub = navigation.addListener("focus", fetchMotors);
+    return unsub;
+  }, [navigation]);
+
   const fetchMotors = async () => {
     setLoading(true);
     try {
-      const data = await GetMotor(); // ambil semua motor
-      // ambil components tiap motor
+      const data = await GetMotor();
+
       const motorsWithComponents = await Promise.all(
-        data.map(async motor => {
+        data.map(async (motor: any) => {
           const components = await getComponents(motor.id);
           const health = calcHealth(components);
           return { ...motor, components, health };
         })
       );
+
       setMotors(motorsWithComponents);
     } catch (err: any) {
       Alert.alert("Error", err.message);
@@ -109,6 +119,7 @@ export default function MotorScreen() {
         padding: 24,
         backgroundColor: "#131313",
       }}
+      showsVerticalScrollIndicator={false}
     >
       <MotorHeader motorName="My Motors" />
 
@@ -150,9 +161,12 @@ export default function MotorScreen() {
                         onSave: async (updated: any) => {
                           const components = await getComponents(updated.id);
                           const health = calcHealth(components);
+
                           setMotors(prev =>
                             prev.map(m =>
-                              m.id === updated.id ? { ...updated, components, health } : m
+                              m.id === updated.id
+                                ? { ...updated, components, health }
+                                : m
                             )
                           );
                         },
@@ -189,10 +203,20 @@ export default function MotorScreen() {
           activeOpacity={0.85}
           onPress={() =>
             navigation.navigate("AddEditMotor", {
-              onSave: async (motor: any) => {
+              onSave: async (motor: any, tempId?: string) => {
                 const components = await getComponents(motor.id);
                 const health = calcHealth(components);
-                setMotors(prev => [{ ...motor, components, health }, ...prev]);
+
+                setMotors(prev => {
+                  if (tempId) {
+                    return prev.map(m =>
+                      m.id === tempId
+                        ? { ...motor, components, health }
+                        : m
+                    );
+                  }
+                  return [{ ...motor, components, health }, ...prev];
+                });
               },
             })
           }
