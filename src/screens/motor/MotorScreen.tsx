@@ -16,14 +16,32 @@ import { GetMotor } from "@/api/motor/getMotor";
 import { AddMotor } from "@/api/motor/addMotor";
 import { UpdateMotor } from "@/api/motor/updateMotor";
 import { DeleteMotor } from "@/api/motor/deleteMotor";
+import { getComponents } from "@/api/motorComponent/getComponents";
+
+// Hitung health dari components
+const calcHealth = (components: any[]) => {
+  if (!components?.length) return 100;
+  const ratios = components.map(c =>
+    Math.max(0, 1 - c.current_value / c.max_value)
+  );
+  return Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100);
+};
 
 // Helper status
 const getStatus = (value: number) => {
   if (value >= 80)
     return { label: "GOOD", color: "#22C55E", note: "Ready for daily use" };
   if (value >= 50)
-    return { label: "WARNING", color: "#FACC15", note: "Maintenance recommended soon" };
-  return { label: "SERVICE", color: "#EF4444", note: "Immediate service is recommended" };
+    return {
+      label: "WARNING",
+      color: "#FACC15",
+      note: "Maintenance recommended soon",
+    };
+  return {
+    label: "SERVICE",
+    color: "#EF4444",
+    note: "Immediate service is recommended",
+  };
 };
 
 // Status icon
@@ -33,12 +51,11 @@ const StatusIcon = ({ value }: { value: number }) => {
   return <XCircle size={20} color="#EF4444" />;
 };
 
-export default function MotorScreen({ user }: any) {
+export default function MotorScreen() {
   const navigation = useNavigation<any>();
   const [motors, setMotors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch motors on mount
   useEffect(() => {
     fetchMotors();
   }, []);
@@ -46,8 +63,16 @@ export default function MotorScreen({ user }: any) {
   const fetchMotors = async () => {
     setLoading(true);
     try {
-      const data = await GetMotor();
-      setMotors(data);
+      const data = await GetMotor(); // ambil semua motor
+      // ambil components tiap motor
+      const motorsWithComponents = await Promise.all(
+        data.map(async motor => {
+          const components = await getComponents(motor.id);
+          const health = calcHealth(components);
+          return { ...motor, components, health };
+        })
+      );
+      setMotors(motorsWithComponents);
     } catch (err: any) {
       Alert.alert("Error", err.message);
     } finally {
@@ -55,7 +80,6 @@ export default function MotorScreen({ user }: any) {
     }
   };
 
-  // Confirm delete
   const confirmDelete = (motorId: string, motorName: string) => {
     Alert.alert(
       "Delete Motor",
@@ -78,29 +102,6 @@ export default function MotorScreen({ user }: any) {
     );
   };
 
-  // Handle add motor (langsung update UI + default components)
-  const handleAddMotor = async (motorName: string) => {
-    try {
-      // Optimistic UI: tambahin sementara
-      const tempMotor = {
-        id: Date.now(),
-        name: motorName,
-        health: 100,
-      };
-      setMotors(prev => [tempMotor, ...prev]);
-
-      // Insert ke Supabase + default components (Oil & Spark Plug)
-      const newMotor = await AddMotor(user.id, motorName);
-
-      // Update state dengan ID asli dari DB
-      setMotors(prev =>
-        prev.map(m => (m.id === tempMotor.id ? newMotor : m))
-      );
-    } catch (err: any) {
-      Alert.alert("Error", err.message);
-    }
-  };
-
   return (
     <ScrollView
       contentContainerStyle={{
@@ -108,19 +109,20 @@ export default function MotorScreen({ user }: any) {
         padding: 24,
         backgroundColor: "#131313",
       }}
-      showsVerticalScrollIndicator={false}
     >
       <MotorHeader motorName="My Motors" />
 
       <View className="flex-col gap-3 mt-4">
         {motors.map((motor) => {
-          const status = getStatus(motor.health || 100);
+          const status = getStatus(motor.health ?? 100);
 
           return (
             <TouchableOpacity
               key={motor.id}
               activeOpacity={0.9}
-              onPress={() => navigation.navigate("MotorDetail", { motor })}
+              onPress={() =>
+                navigation.navigate("MotorDetail", { motor })
+              }
               className="w-full bg-[#212121] p-4 rounded-xl"
             >
               {/* HEADER */}
@@ -130,9 +132,8 @@ export default function MotorScreen({ user }: any) {
                 </Text>
 
                 <View className="flex-row items-center gap-3">
-                  {/* STATUS */}
                   <View className="flex-row items-center gap-1">
-                    <StatusIcon value={motor.health || 100} />
+                    <StatusIcon value={motor.health ?? 100} />
                     <Text
                       className="text-xs font-maisonBold"
                       style={{ color: status.color }}
@@ -147,19 +148,13 @@ export default function MotorScreen({ user }: any) {
                       navigation.navigate("AddEditMotor", {
                         motor,
                         onSave: async (updated: any) => {
-                          try {
-                            const data = await UpdateMotor(
-                              updated.id,
-                              updated.name
-                            );
-                            setMotors(prev =>
-                              prev.map(m =>
-                                m.id === updated.id ? data : m
-                              )
-                            );
-                          } catch (err: any) {
-                            Alert.alert("Error", err.message);
-                          }
+                          const components = await getComponents(updated.id);
+                          const health = calcHealth(components);
+                          setMotors(prev =>
+                            prev.map(m =>
+                              m.id === updated.id ? { ...updated, components, health } : m
+                            )
+                          );
                         },
                       })
                     }
@@ -180,10 +175,8 @@ export default function MotorScreen({ user }: any) {
                 </View>
               </View>
 
-              {/* HEALTH BAR */}
-              <MotorHealthBar value={motor.health || 100} />
+              <MotorHealthBar value={motor.health ?? 100} />
 
-              {/* NOTE */}
               <Text className="text-xs text-gray-400 mt-2">
                 {status.note}
               </Text>
@@ -191,14 +184,18 @@ export default function MotorScreen({ user }: any) {
           );
         })}
 
-        {/* ADD MOTOR CARD */}
+        {/* ADD MOTOR */}
         <TouchableOpacity
           activeOpacity={0.85}
-          onPress={() => {
-            // bisa pakai prompt atau modal untuk input nama motor
-            const motorName = "New Motor"; // sementara default
-            handleAddMotor(motorName);
-          }}
+          onPress={() =>
+            navigation.navigate("AddEditMotor", {
+              onSave: async (motor: any) => {
+                const components = await getComponents(motor.id);
+                const health = calcHealth(components);
+                setMotors(prev => [{ ...motor, components, health }, ...prev]);
+              },
+            })
+          }
           className="w-full border-2 border-dashed border-neutral-600 p-6 rounded-xl items-center justify-center mt-2"
         >
           <Text className="text-neutral-400 font-maisonBold text-lg">
