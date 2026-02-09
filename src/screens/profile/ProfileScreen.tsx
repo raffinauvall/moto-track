@@ -23,7 +23,7 @@ export default function ProfileScreen({ navigation }: any) {
         const { data } = await supabase.auth.getUser();
         setUser(data.user);
 
-        // 🔥 pake helper
+
         const motors = await GetMotor();
         setMotorCount(motors.length);
       } catch (err: any) {
@@ -55,7 +55,6 @@ export default function ProfileScreen({ navigation }: any) {
 
   return (
     <ScrollView className="flex-1 bg-[#131313]">
-      {/* header */}
       <View className="bg-[#1c1c1c] pt-16 pb-10 items-center rounded-b-[40px]">
         <Image
           source={{ uri: `https://i.pravatar.cc/200?u=${user.id}` }}
@@ -92,7 +91,7 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
       </View>
 
-      {/* logout */}
+
       <TouchableOpacity
         onPress={handleLogout}
         className="m-6 bg-[#2a2a2a] py-4 rounded-2xl flex-row justify-center items-center"
