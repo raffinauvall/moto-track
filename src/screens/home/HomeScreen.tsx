@@ -5,28 +5,56 @@ import MotorCard from "@/components/home/MotorCards";
 import { useEffect, useState } from "react";
 import Header from "@/components/home/Header";
 import { supabase } from "@/api/supabaseClient";
+import { useNavigation } from "@react-navigation/native";
+
 export default function HomeScreen() {
+    const navigation = useNavigation<any>();
+
     const [userName, setUserName] = useState("User");
-    const [motor, setMotor] = useState("Yamaha Scorpio")
+    const [activeMotor, setActiveMotor] = useState<any>(null);
+
     const [stats, setStats] = useState({
         oil: { current: 500, max: 2000 },
         spark: { current: 236, max: 10000 }
     });
 
-    const changeMotor = () => {
-        setMotor(motor === "Yamaha Scorpio" ? "Honda Tiger" : "Yamaha Scorpio")
-    }
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data, error } = await supabase.auth.getUser();
-            if (error) {
-                console.log(error.message);
-                return;
+    // ambil user
+    const fetchUser = async () => {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) {
+            console.log(error.message);
+            return;
+        }
+        setUserName(data.user?.user_metadata.name || "User");
+    };
+
+    // ambil motor aktif
+    const fetchActiveMotor = async () => {
+        try {
+            const { data } = await supabase
+                .from("motors")
+                .select("*")
+                .eq("is_active", true)
+                .single();
+
+            if (data) {
+                setActiveMotor(data);
             }
-            setUserName(data.user?.user_metadata.name || "User");
-        };
+        } catch (error) {
+            console.log("Belum ada motor aktif");
+        }
+    };
+
+    useEffect(() => {
         fetchUser();
+        fetchActiveMotor();
     }, []);
+
+    // refresh otomatis saat balik ke Home
+    useEffect(() => {
+        const unsub = navigation.addListener("focus", fetchActiveMotor);
+        return unsub;
+    }, [navigation]);
 
     return (
         <ScrollView
@@ -37,7 +65,10 @@ export default function HomeScreen() {
 
             {/* Stats Cards */}
             <View className="space-y-4 mb-5">
-                <MotorCard motor={motor} onChangeMotor={changeMotor} />
+
+                <MotorCard 
+                    motor={activeMotor?.name || "No Active Motor"} 
+                />
 
                 <View className="flex-row gap-4 ">
                     <CircularWidget
@@ -55,8 +86,6 @@ export default function HomeScreen() {
                         Icon={Zap}
                     />
                 </View>
-
-
             </View>
 
             {/* Start Tracking Button */}

@@ -15,6 +15,8 @@ import MotorHeader from "@/components/motor/MotorHeader";
 import { GetMotor } from "@/api/motor/getMotor";
 import { DeleteMotor } from "@/api/motor/deleteMotor";
 import { getComponents } from "@/api/motorComponent/getComponents";
+import { setActiveMotor } from "@/api/motor/setActiveMotor";
+import { supabase } from "@/api/supabaseClient";
 
 // ======================
 // Helpers
@@ -63,7 +65,6 @@ export default function MotorScreen() {
     fetchMotors();
   }, []);
 
-  // 🔥 AUTO REFRESH SAAT BALIK KE SCREEN
   useEffect(() => {
     const unsub = navigation.addListener("focus", fetchMotors);
     return unsub;
@@ -112,6 +113,23 @@ export default function MotorScreen() {
     );
   };
 
+  // SET ACTIVE MOTOR
+  const handleSetActive = async (motorId: string) => {
+    try {
+      const { data } = await supabase.auth.getUser();
+
+      if (!data.user) {
+        Alert.alert("Error", "User not found");
+        return;
+      }
+
+      await setActiveMotor(motorId, data.user.id);
+      fetchMotors();
+    } catch (err: any) {
+      Alert.alert("Error", err.message);
+    }
+  };
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -138,9 +156,17 @@ export default function MotorScreen() {
             >
               {/* HEADER */}
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-white font-maisonBold text-xl">
-                  {motor.name}
-                </Text>
+
+                {/* NAME + ACTIVE STATUS */}
+                <View>
+                  <Text className="text-white font-maisonBold text-xl">
+                    {motor.name}
+                  </Text>
+
+                  <Text className="text-xs text-gray-400">
+                    {motor.is_active ? "Active" : "Non-Active"}
+                  </Text>
+                </View>
 
                 <View className="flex-row items-center gap-3">
                   <View className="flex-row items-center gap-1">
@@ -186,6 +212,17 @@ export default function MotorScreen() {
                       Delete
                     </Text>
                   </TouchableOpacity>
+
+                  {/* SET ACTIVE */}
+                  {!motor.is_active && (
+                    <TouchableOpacity
+                      onPress={() => handleSetActive(motor.id)}
+                    >
+                      <Text className="text-[#34D399] text-xs font-maisonBold">
+                        Set Active
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
 
