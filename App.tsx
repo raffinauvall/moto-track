@@ -4,6 +4,7 @@ import AppNavigator from "./src/navigation/AppNavigator";
 import { useFonts } from "expo-font";
 import BottomTabNavigator from "@/navigation/BottomTabNavigator";
 import { NavigationContainer } from "@react-navigation/native";
+import { ActiveMotorProvider } from "@/context/ActiveMotorContext";
 
 
 export default function App() {
@@ -14,6 +15,10 @@ export default function App() {
     "MaisonNeue-Mono": require("./assets/fonts/maison/Maison_Neue_Mono.ttf"),
   });
 
-   return <AppNavigator/>
+   return (
+        <ActiveMotorProvider>
+      <AppNavigator />
+    </ActiveMotorProvider>
+   );
   
 }

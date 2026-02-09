@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
 import MotorHealthBar from "@/components/motor/MotorHealthBar";
 import MotorHeader from "@/components/motor/MotorHeader";
+import { useActiveMotor } from "@/context/ActiveMotorContext";
 
 // API
 import { GetMotor } from "@/api/motor/getMotor";
@@ -18,9 +19,11 @@ import { getComponents } from "@/api/motorComponent/getComponents";
 import { setActiveMotor } from "@/api/motor/setActiveMotor";
 import { supabase } from "@/api/supabaseClient";
 
-// ======================
-// Helpers
-// ======================
+
+interface MotorScreenProps {
+  setIndex: (i: number) => void;
+}
+
 const calcHealth = (components: any[]) => {
   if (!components?.length) return 100;
   const ratios = components.map(c =>
@@ -53,10 +56,8 @@ const StatusIcon = ({ value }: { value: number }) => {
   return <XCircle size={20} color="#EF4444" />;
 };
 
-// ======================
-// Screen
-// ======================
-export default function MotorScreen() {
+
+export default function MotorScreen({ setIndex }: MotorScreenProps) {
   const navigation = useNavigation<any>();
   const [motors, setMotors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -113,22 +114,22 @@ export default function MotorScreen() {
     );
   };
 
-  // SET ACTIVE MOTOR
-  const handleSetActive = async (motorId: string) => {
+  const { setActiveMotorState } = useActiveMotor();
+  const handleSetActive = async (motor: any) => {
     try {
       const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
 
-      if (!data.user) {
-        Alert.alert("Error", "User not found");
-        return;
-      }
+      await setActiveMotor(motor.id, data.user.id);
 
-      await setActiveMotor(motorId, data.user.id);
+      setActiveMotorState(motor);
+
       fetchMotors();
     } catch (err: any) {
       Alert.alert("Error", err.message);
     }
   };
+
 
   return (
     <ScrollView
@@ -216,7 +217,7 @@ export default function MotorScreen() {
                   {/* SET ACTIVE */}
                   {!motor.is_active && (
                     <TouchableOpacity
-                      onPress={() => handleSetActive(motor.id)}
+                      onPress={() => handleSetActive(motor)}
                     >
                       <Text className="text-[#34D399] text-xs font-maisonBold">
                         Set Active

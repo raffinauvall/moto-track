@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Dimensions, TouchableOpacity } from "react-native";
-import { TabView, SceneMap } from "react-native-tab-view";
+import { TabView } from "react-native-tab-view";
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from "react-native-reanimated";
 import { Home, Bike, Clock, User } from "lucide-react-native";
 
@@ -9,6 +9,7 @@ import MotorScreen from "@/screens/motor/MotorScreen";
 import ProfileScreen from "@/screens/profile/ProfileScreen";
 
 const initialLayout = { width: Dimensions.get("window").width };
+
 type AnimatedTabIconProps = {
   focused: boolean;
   Icon: React.FC<{ color: string; size: number }>;
@@ -31,15 +32,6 @@ const AnimatedTabIcon: React.FC<AnimatedTabIconProps> = ({ focused, Icon }) => {
   );
 };
 
-
-// Tab scenes
-const renderScene = SceneMap({
-  home: HomeScreen,
-  motor: MotorScreen,
-  history: HomeScreen,
-  profile: ProfileScreen,
-});
-
 export default function AnimatedBottomTab() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -48,6 +40,22 @@ export default function AnimatedBottomTab() {
     { key: "history", icon: Clock },
     { key: "profile", icon: User },
   ]);
+
+  // ✅ renderScene manual supaya bisa pass prop
+  const renderScene = ({ route }: { route: { key: string } }) => {
+    switch (route.key) {
+      case "home":
+        return <HomeScreen />;
+      case "motor":
+        return <MotorScreen setIndex={setIndex} />; // pass setIndex
+      case "history":
+        return <HomeScreen />; // ganti nanti kalau ada HistoryScreen
+      case "profile":
+        return <ProfileScreen />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#131313" }}>
