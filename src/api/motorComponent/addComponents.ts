@@ -1,10 +1,17 @@
 import { supabase } from "../supabaseClient";
 
-export async function addComponent(motorId: string, name: string) {
+export const addComponent = async (payload: {
+  motor_id: string;
+  name: string;
+  max_value: number;
+  current_value: number;
+}) => {
   const { data, error } = await supabase
     .from("motor_components")
-    .insert([{ motor_id: motorId, name, value: 0 }]); // value awal 0 km
+    .insert(payload)
+    .select()
+    .single();
 
   if (error) throw error;
-  return data || [];
-}
+  return data;
+};

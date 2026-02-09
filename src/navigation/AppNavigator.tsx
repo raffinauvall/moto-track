@@ -7,6 +7,9 @@ import RegisterScreen from "../screens/auth/RegisterScreen";
 import MotorDetailScreen from "../screens/motor/MotorDetailScreen";
 import AddEditMotorScreen from "../screens/motor/AddEditMotorScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
+import AddComponentScreen from "@/screens/motor/AddComponentScreen";
+import EditComponentScreen from "@/screens/motor/EditComponentScreen";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +34,10 @@ export default function AppNavigator() {
           name="AddEditMotor"
           component={AddEditMotorScreen}
         />
+        <Stack.Screen name="AddComponent" component={AddComponentScreen} />
+        <Stack.Screen name="EditComponent" component={EditComponentScreen} />
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
