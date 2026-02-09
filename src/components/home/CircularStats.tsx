@@ -1,13 +1,12 @@
 import { View, Text } from "react-native";
-import { Droplet, Zap } from "lucide-react-native";
-import { Svg, Circle, Text as SvgText, G } from "react-native-svg";
+import { Svg, Circle, G } from "react-native-svg";
 
 type WidgetProps = {
   current: number;
   max: number;
   label: string;
   color: string;
-  Icon: typeof Droplet | typeof Zap;
+  Icon: any;
 };
 
 export default function CircularWidget({
@@ -27,16 +26,15 @@ export default function CircularWidget({
   const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <View className="flex-1 bg-[#212121] p-4 rounded-3xl items-center">
+    <View className="w-full bg-[#212121] p-4 rounded-3xl items-center mb-4">
       {/* Header */}
-      <View className="flex-row items-center justify gap-3 mb-2">
-        <Icon className="border" color={color} size={26} />
-        <Text className="text-white text-x mt-1">{label}</Text>
+      <View className="flex-row items-center justify-center gap-3 mb-2">
+        <Icon color={color} size={26} />
+        <Text className="text-white text-xs">{label}</Text>
       </View>
-    
 
-      {/* Progress */}
-      <View className="relative" style={{ width: size, height: size }}>
+      {/* Circle */}
+      <View style={{ width: size, height: size }}>
         <Svg width={size} height={size}>
           <G rotation="-90" origin={`${center}, ${center}`}>
             <Circle
@@ -61,12 +59,12 @@ export default function CircularWidget({
           </G>
         </Svg>
 
-        {/* TEXT OVERLAY */}
-        <View className="absolute inset-0 items-center justify-center px-4">
-          <Text className="text-white font-bold text-sm text-center">
+        {/* Text */}
+        <View className="absolute inset-0 items-center justify-center">
+          <Text className="text-white font-bold">
             {current}/{max}
           </Text>
-          <Text className="text-neutral-400 text-[10px]">km</Text>
+          <Text className="text-neutral-400 text-xs">km</Text>
         </View>
       </View>
     </View>
