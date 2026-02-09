@@ -7,6 +7,7 @@ import { Home, Bike, Clock, User } from "lucide-react-native";
 import HomeScreen from "../screens/home/HomeScreen";
 import MotorScreen from "@/screens/motor/MotorScreen";
 import ProfileScreen from "@/screens/profile/ProfileScreen";
+import ServiceScreen from "@/screens/service/ServiceScreen";
 
 const initialLayout = { width: Dimensions.get("window").width };
 
@@ -37,7 +38,7 @@ export default function AnimatedBottomTab() {
   const [routes] = useState([
     { key: "home", icon: Home },
     { key: "motor", icon: Bike },
-    { key: "history", icon: Clock },
+    { key: "service", icon: Clock },
     { key: "profile", icon: User },
   ]);
 
@@ -47,9 +48,9 @@ export default function AnimatedBottomTab() {
       case "home":
         return <HomeScreen />;
       case "motor":
-        return <MotorScreen setIndex={setIndex} />; // pass setIndex
-      case "history":
-        return <HomeScreen />; // ganti nanti kalau ada HistoryScreen
+        return <MotorScreen setIndex={setIndex} />; 
+      case "service":
+        return <ServiceScreen />; 
       case "profile":
         return <ProfileScreen />;
       default:
