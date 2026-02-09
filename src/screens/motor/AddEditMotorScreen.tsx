@@ -3,38 +3,42 @@ import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
 import { AddMotor } from "@/api/motor/addMotor";
 
-export default function AddEditMotorScreen({ navigation, route, user }: any) {
+export default function AddEditMotorScreen({ navigation, route }: any) {
   const onSave = route.params?.onSave;
 
   const [name, setName] = useState("");
-  const [health, setHealth] = useState("100");
+  const [brand, setBrand] = useState(""); // tambah brand
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    if (!name || !health) return;
+    if (!name || !brand) return; // health dihapus, pakai brand
 
     setLoading(true);
+    const tempId = `temp-${Date.now()}`;
 
-    // 1️⃣ Optimistic UI: buat motor sementara
-    const tempMotor = {
-      id: Date.now(), // temporary ID
+    // Optimistic motor
+    onSave({
+      id: tempId,
       name,
-      health: Number(health),
-    };
-    onSave(tempMotor); // langsung tampil di list
+      brand,
+      temp: true,
+    });
 
     try {
-      // 2️⃣ Insert motor + default components ke Supabase
-      const motor = await AddMotor(user.id, name, Number(health));
+      // Insert motor + default components
+      const motor = await AddMotor(name, brand);
 
-      // 3️⃣ Update state lagi kalau mau pakai ID asli dari DB
-      onSave(motor);
+      // Replace temp motor dengan data asli
+      onSave(motor, tempId);
+
+      navigation.goBack();
     } catch (err) {
       console.log(err);
-      // optional: rollback UI kalau error
+
+      // Rollback optimistic
+      onSave(null, tempId);
     } finally {
       setLoading(false);
-      navigation.goBack();
     }
   };
 
@@ -45,35 +49,38 @@ export default function AddEditMotorScreen({ navigation, route, user }: any) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeft size={26} color="#fff" />
         </TouchableOpacity>
-        <Text className="text-white text-xl font-maisonBold ml-4">Add Motor</Text>
+        <Text className="text-white text-xl font-maisonBold ml-4">
+          Add Motor
+        </Text>
       </View>
 
-      {/* Name */}
+      {/* Motor Name */}
       <Text className="text-neutral-400 mb-2">Motor Name</Text>
       <TextInput
         className="bg-[#212121] rounded-xl px-4 py-4 text-white mb-5"
-        placeholder="e.g. Yamaha NMAX"
+        placeholder="e.g. NMAX"
         placeholderTextColor="#666"
         value={name}
         onChangeText={setName}
       />
 
-      {/* Health */}
-      <Text className="text-neutral-400 mb-2">Health (%)</Text>
+      {/* Brand */}
+      <Text className="text-neutral-400 mb-2">Brand</Text>
       <TextInput
         className="bg-[#212121] rounded-xl px-4 py-4 text-white"
-        placeholder="0 - 100"
+        placeholder="Yamaha / Honda / Suzuki"
         placeholderTextColor="#666"
-        keyboardType="numeric"
-        value={health}
-        onChangeText={setHealth}
+        value={brand}
+        onChangeText={setBrand}
       />
 
-      {/* Save */}
+      {/* Save Button */}
       <TouchableOpacity
         onPress={handleSave}
-        className={`bg-[#34D399] py-5 rounded-3xl mt-10 ${loading ? "opacity-60" : ""}`}
         disabled={loading}
+        className={`bg-[#34D399] py-5 rounded-3xl mt-10 ${
+          loading ? "opacity-60" : ""
+        }`}
       >
         <Text className="text-black font-maisonBold text-center text-lg">
           {loading ? "Saving..." : "Save Motor"}
