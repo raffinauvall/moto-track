@@ -1,72 +1,105 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Image,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import { supabase } from "@/api/supabaseClient";
 import { CommonActions } from "@react-navigation/native";
+import { LogOut, Bike, Wrench } from "lucide-react-native";
+import { GetMotor } from "@/api/motor/getMotor";
 
 export default function ProfileScreen({ navigation }: any) {
-    const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+  const [motorCount, setMotorCount] = useState(0);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data, error } = await supabase.auth.getUser();
-            if (error) return Alert.alert("Error", error.message);
-            setUser(data.user);
-        };
-        fetchUser();
-    }, []);
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        setUser(data.user);
 
-    const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) return Alert.alert("Logout Gagal", error.message);
-
-        navigation.dispatch(
-            CommonActions.reset({
-                index: 0,
-                routes: [{ name: "Login" }], // screen auth
-            })
-        );
+        // 🔥 pake helper
+        const motors = await GetMotor();
+        setMotorCount(motors.length);
+      } catch (err: any) {
+        Alert.alert("Error", err.message);
+      }
     };
 
-    if (!user)
-        return (
-            <View className="flex-1 justify-center items-center bg-neutral-950">
-                <Text className="text-white text-lg">Loading...</Text>
-            </View>
-        );
+    init();
+  }, []);
 
-    return (
-        <View className="flex-1 bg-[#131313]">
-            {/* Header */}
-            <View className="bg-[#212121] py-12 items-center rounded-b-3xl">
-                <Image
-                    source={{ uri: `https://i.pravatar.cc/150?u=${user.id}` }} // avatar random
-                    className="w-24 h-24 rounded-full mb-4 border-4 border-white"
-                />
-                <Text className="text-white text-2xl font-maisonBold">
-                    {user.user_metadata.name || "User"}
-                </Text>
-                <Text className="text-white text-base mt-1">{user.email}</Text>
-            </View>
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
 
-            {/* Quick Stats / Cards */}
-            <View className="px-6 mt-6 space-y-4">
-                <View className="bg-[#212121] rounded-2xl p-4 flex-row justify-between items-center shadow-lg">
-                    <Text className="text-white font-maisonBold text-lg">Motor</Text>
-                    <Text className="text-emerald-400 font-maisonBold">2</Text>
-                </View>
-                <View className="bg-[#212121] rounded-2xl p-4 flex-row justify-between items-center shadow-lg">
-                    <Text className="text-white font-maisonBold text-lg">Services Done</Text>
-                    <Text className="text-yellow-400 font-maisonBold">5</Text>
-                </View>
-            </View>
-
-            {/* Logout Button */}
-            <TouchableOpacity
-                className="mt-8 mx-6 bg-red-500 py-4 rounded-3xl shadow-lg items-center"
-                onPress={handleLogout}
-            >
-                <Text className="text-white font-maisonBold text-lg">Logout</Text>
-            </TouchableOpacity>
-        </View>
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      })
     );
+  };
+
+  if (!user) {
+    return (
+      <View className="flex-1 justify-center items-center bg-[#131313]">
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-[#131313]">
+      {/* header */}
+      <View className="bg-[#1c1c1c] pt-16 pb-10 items-center rounded-b-[40px]">
+        <Image
+          source={{ uri: `https://i.pravatar.cc/200?u=${user.id}` }}
+          className="w-28 h-28 rounded-full mb-4 border-4 border-neutral-700"
+        />
+
+        <Text className="text-white text-2xl font-bold">
+          {user.user_metadata?.name || "Rider"}
+        </Text>
+
+        <Text className="text-neutral-400 text-sm mt-1">
+          {user.email}
+        </Text>
+      </View>
+
+      {/* stats */}
+      <View className="px-6 mt-8 flex-row justify-between">
+        <View className="w-[48%] bg-[#212121] p-5 rounded-2xl">
+          <View className="flex-row items-center justify-between">
+            <Bike color="#22C55E" size={22} />
+            <Text className="text-emerald-400 text-xl font-bold">
+              {motorCount}
+            </Text>
+          </View>
+          <Text className="text-neutral-400 mt-3">Motors</Text>
+        </View>
+
+        <View className="w-[48%] bg-[#212121] p-5 rounded-2xl">
+          <View className="flex-row items-center justify-between">
+            <Wrench color="#FACC15" size={22} />
+            <Text className="text-yellow-400 text-xl font-bold">5</Text>
+          </View>
+          <Text className="text-neutral-400 mt-3">Services</Text>
+        </View>
+      </View>
+
+      {/* logout */}
+      <TouchableOpacity
+        onPress={handleLogout}
+        className="m-6 bg-[#2a2a2a] py-4 rounded-2xl flex-row justify-center items-center"
+      >
+        <LogOut size={18} color="#EF4444" />
+        <Text className="text-red-400 ml-2">Logout</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
 }
