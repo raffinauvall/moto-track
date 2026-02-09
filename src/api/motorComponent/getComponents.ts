@@ -7,5 +7,6 @@ export async function getComponents(motorId: string) {
     .eq("motor_id", motorId);
 
   if (error) throw error;
+
   return data;
 }
