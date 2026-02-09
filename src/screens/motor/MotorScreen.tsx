@@ -92,27 +92,36 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
     }
   };
 
-  const confirmDelete = (motorId: string, motorName: string) => {
-    Alert.alert(
-      "Delete Motor",
-      `Are you sure you want to delete "${motorName}"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await DeleteMotor(motorId);
-              setMotors(prev => prev.filter(m => m.id !== motorId));
-            } catch (err: any) {
-              Alert.alert("Error", err.message);
-            }
-          },
+const confirmDelete = (motorId: string, motorName: string) => {
+  Alert.alert(
+    "Delete Motor",
+    `Are you sure you want to delete "${motorName}"?`,
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await DeleteMotor(motorId);
+
+            // update state motors
+            setMotors(prev => prev.filter(m => m.id == motorId ? false : true));
+
+            // jika yang dihapus motor active, reset activeMotor di context
+            const active = motors.find(m => m.id == motorId && m.is_active);
+            if (active) setActiveMotorState(null);
+
+            Alert.alert("Success", "Motor berhasil dihapus!");
+          } catch (err: any) {
+            Alert.alert("Error", err.message);
+          }
         },
-      ]
-    );
-  };
+      },
+    ]
+  );
+};
+
 
   const { setActiveMotorState } = useActiveMotor();
   const handleSetActive = async (motor: any) => {

@@ -1,8 +1,8 @@
 import { supabase } from "../supabaseClient";
 
 const defaultComponents = [
-  { name: "Oil", current_value: 0, max_value: 2000 },
-  { name: "Spark Plug", current_value: 0, max_value: 8000 },
+  { name: "Oil", current_value: 0, max_value: 2000, is_pinned: true },
+  { name: "Spark Plug", current_value: 0, max_value: 8000 , is_pinned: true},
 ];
 
 export async function AddMotor(name: string, brand: string) {
@@ -30,6 +30,7 @@ export async function AddMotor(name: string, brand: string) {
         name: c.name,
         current_value: c.current_value,
         max_value: c.max_value,
+        is_pinned: c.is_pinned
       }))
     );
 

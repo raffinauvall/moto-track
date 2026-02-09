@@ -46,7 +46,7 @@ export default function AnimatedBottomTab() {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case "home":
-        return <HomeScreen />;
+        return <HomeScreen setIndex={setIndex}/>;
       case "motor":
         return <MotorScreen setIndex={setIndex} />; 
       case "service":

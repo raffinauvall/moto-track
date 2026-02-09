@@ -15,7 +15,8 @@ export default function CircularWidget({
   label,
   color,
   Icon,
-}: WidgetProps) {
+  style, // tambahin prop style
+}: WidgetProps & { style?: any }) {
   const radius = 48;
   const strokeWidth = 8;
   const size = 160;
@@ -26,7 +27,10 @@ export default function CircularWidget({
   const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <View className="w-full bg-[#212121] p-4 rounded-3xl items-center mb-4">
+    <View
+      style={style} // pake style dari luar
+      className="bg-[#212121] p-4 rounded-3xl items-center mb-4"
+    >
       {/* Header */}
       <View className="flex-row items-center justify-center gap-3 mb-2">
         <Icon color={color} size={26} />
