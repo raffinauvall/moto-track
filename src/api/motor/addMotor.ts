@@ -1,35 +1,42 @@
 import { supabase } from "../supabaseClient";
 
 const defaultComponents = [
-  { name: "Oil", value: 0 },
-  { name: "Spark Plug", value: 0 },
+  { name: "Oil", current_value: 0, max_value: 2000 },
+  { name: "Spark Plug", current_value: 0, max_value: 8000 },
 ];
 
-export async function AddMotor(userId: string, motorName: string, health = 100) {
+export async function AddMotor(name: string, brand: string) {
+  // ambil user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not logged in");
+
   // insert motor
-  const { data: motorData, error: motorError } = await supabase
+  const { data: motor, error } = await supabase
     .from("motors")
-    .insert([{ user_id: userId, name: motorName, health }])
+    .insert({ user_id: user.id, name, brand })
     .select()
     .single();
 
-  if (motorError) throw motorError;
-  if (!motorData) throw new Error("Motor not created");
-
-  const motorId = motorData.id;
+  if (error || !motor) throw error;
 
   // insert default components
-  const componentsToInsert = defaultComponents.map((c) => ({
-    motor_id: motorId,
-    name: c.name,
-    value: c.value,
-  }));
-
   const { error: compError } = await supabase
     .from("motor_components")
-    .insert(componentsToInsert);
+    .insert(
+      defaultComponents.map(c => ({
+        motor_id: motor.id,
+        name: c.name,
+        current_value: c.current_value,
+        max_value: c.max_value,
+      }))
+    );
 
-  if (compError) throw compError;
+  if (compError) {
+    console.error("Component insert failed:", compError);
+    throw compError;
+  }
 
-  return motorData; // kita kembalikan motor baru
+  return motor;
 }
