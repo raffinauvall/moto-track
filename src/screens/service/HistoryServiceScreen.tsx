@@ -7,29 +7,25 @@ import {
 } from "react-native";
 import { ChevronRight, Droplet, Wrench } from "lucide-react-native";
 import { useState, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { supabase } from "@/api/supabaseClient";
 
 export default function HistoryMotorScreen() {
+  const navigation = useNavigation<any>();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
     setLoading(true);
-
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("service_history")
       .select("*")
       .order("service_date", { ascending: false });
 
-    if (!error) {
-      setHistory(data || []);
-    }
-
+    setHistory(data || []);
     setLoading(false);
   };
 
-  // 🔥 AUTO REFRESH SETIAP SCREEN DIFOKUSKAN
   useFocusEffect(
     useCallback(() => {
       fetchHistory();
@@ -42,19 +38,8 @@ export default function HistoryMotorScreen() {
         History Service
       </Text>
 
-      {/* LOADING */}
-      {loading && (
-        <ActivityIndicator size="large" color="#34D399" />
-      )}
+      {loading && <ActivityIndicator size="large" color="#34D399" />}
 
-      {/* EMPTY STATE */}
-      {!loading && history.length === 0 && (
-        <Text className="text-gray-400 text-center mt-10">
-          Belum ada riwayat service
-        </Text>
-      )}
-
-      {/* LIST HISTORY */}
       {!loading &&
         history.map((service) => {
           const isRingan =
@@ -63,6 +48,13 @@ export default function HistoryMotorScreen() {
           return (
             <TouchableOpacity
               key={service.id}
+              onPress={() =>
+                navigation.navigate("HistoryMotorDetail", {
+                  historyId: service.id,
+                  serviceType: service.service_type,
+                  serviceDate: service.service_date,
+                })
+              }
               className="bg-[#212121] rounded-xl p-4 flex-row justify-between items-center mb-3"
             >
               <View className="flex-row items-center">
@@ -71,7 +63,6 @@ export default function HistoryMotorScreen() {
                 ) : (
                   <Wrench size={30} color="#FBBF24" />
                 )}
-
                 <View className="ml-3">
                   <Text className="text-white text-lg font-semibold">
                     {service.service_type}
@@ -81,7 +72,6 @@ export default function HistoryMotorScreen() {
                   </Text>
                 </View>
               </View>
-
               <ChevronRight size={24} color="#fff" />
             </TouchableOpacity>
           );

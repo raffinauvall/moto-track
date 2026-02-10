@@ -57,27 +57,33 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
         selected.includes(c.id)
       );
 
-      // 🔥 LOGIKA RINGAN / BERAT
       const serviceType =
         serviced.length <= 2 ? "Service Ringan" : "Service Berat";
 
-      // 1️⃣ DETAIL KOMPONEN
+      // 1️⃣ INSERT HISTORY
+      const { data: history, error } = await supabase
+        .from("service_history")
+        .insert({
+          motor_id: motorId,
+          motor_name: motorName,
+          service_type: serviceType,
+          total_components: serviced.length,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // 2️⃣ INSERT DETAIL KOMPONEN
       await supabase.from("motor_services").insert(
         serviced.map((c) => ({
           motor_id: motorId,
+          service_history_id: history.id,
           component_id: c.id,
           component_name: c.name,
           km_at_service: c.current_value,
         }))
       );
-
-      // 2️⃣ HISTORY SERVICE
-      await supabase.from("service_history").insert({
-        motor_id: motorId,
-        motor_name: motorName,
-        service_type: serviceType,
-        total_components: serviced.length,
-      });
 
       // 3️⃣ RESET KOMPONEN
       await supabase

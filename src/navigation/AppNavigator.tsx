@@ -11,7 +11,9 @@ import AddComponentScreen from "@/screens/motor/AddComponentScreen";
 import EditComponentScreen from "@/screens/motor/EditComponentScreen";
 
 import ServiceMotorScreen from "../screens/service/ServiceMotorScreen";
-import HistoryServiceScreen from "../screens/service/HistoryServiceScreen";
+import HistoryMotorScreen from "../screens/service/HistoryServiceScreen";
+import HistoryMotorDetailScreen from "../screens/service/HistoryMotorDetailScreen";
+
 
 import BottomTabNavigator from "./BottomTabNavigator";
 
@@ -37,11 +39,15 @@ export default function AppNavigator() {
         <Stack.Screen name="EditComponent" component={EditComponentScreen} />
 
         {/* Service */}
+        
+
         <Stack.Screen name="ServiceMotor" component={ServiceMotorScreen} />
+        <Stack.Screen name="HistoryMotor" component={HistoryMotorScreen} />
         <Stack.Screen
-          name="HistoryService"
-          component={HistoryServiceScreen}
+         name="HistoryMotorDetail"
+          component={HistoryMotorDetailScreen}
         />
+
 
       </Stack.Navigator>
     </NavigationContainer>
