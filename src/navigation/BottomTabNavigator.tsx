@@ -7,7 +7,7 @@ import { Home, Bike, Clock, User } from "lucide-react-native";
 import HomeScreen from "../screens/home/HomeScreen";
 import MotorScreen from "@/screens/motor/MotorScreen";
 import ProfileScreen from "@/screens/profile/ProfileScreen";
-import ServiceScreen from "@/screens/service/ServiceScreen";
+import ServiceScreen from "@/screens/service/HistoryServiceScreen";
 
 const initialLayout = { width: Dimensions.get("window").width };
 
