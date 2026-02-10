@@ -10,11 +10,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/api/supabaseClient";
 
 export default function ServiceMotorScreen({ route, navigation }: any) {
-  // ✅ AMBIL PARAM DI ATAS
   const motorId = route?.params?.motorId;
   const motorName = route?.params?.motorName;
 
-  // ✅ GUARD (ANTI CRASH)
   if (!motorId) {
     return (
       <View className="flex-1 bg-[#131313] items-center justify-center">
@@ -27,6 +25,10 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    fetchComponents();
+  }, []);
+
   const fetchComponents = async () => {
     const { data } = await supabase
       .from("motor_components")
@@ -35,10 +37,6 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
 
     setComponents(data || []);
   };
-
-  useEffect(() => {
-    fetchComponents();
-  }, []);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) =>
@@ -59,7 +57,11 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
         selected.includes(c.id)
       );
 
-      // 1️⃣ SIMPAN HISTORY
+      // 🔥 LOGIKA RINGAN / BERAT
+      const serviceType =
+        serviced.length <= 2 ? "Service Ringan" : "Service Berat";
+
+      // 1️⃣ DETAIL KOMPONEN
       await supabase.from("motor_services").insert(
         serviced.map((c) => ({
           motor_id: motorId,
@@ -69,7 +71,15 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
         }))
       );
 
-      // 2️⃣ RESET VALUE
+      // 2️⃣ HISTORY SERVICE
+      await supabase.from("service_history").insert({
+        motor_id: motorId,
+        motor_name: motorName,
+        service_type: serviceType,
+        total_components: serviced.length,
+      });
+
+      // 3️⃣ RESET KOMPONEN
       await supabase
         .from("motor_components")
         .update({ current_value: 0 })
@@ -77,7 +87,7 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
 
       Alert.alert("Service berhasil 🚀");
       navigation.goBack();
-    } catch {
+    } catch (e) {
       Alert.alert("Gagal menyimpan service");
     } finally {
       setLoading(false);
@@ -87,7 +97,6 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
   return (
     <View className="flex-1 bg-[#131313]">
       <ScrollView className="px-6 pt-6">
-        {/* HEADER */}
         <View className="flex-row items-center mb-6">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeft size={26} color="#fff" />
@@ -97,7 +106,6 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
           </Text>
         </View>
 
-        {/* LIST */}
         {components.map((c) => {
           const checked = selected.includes(c.id);
           return (
