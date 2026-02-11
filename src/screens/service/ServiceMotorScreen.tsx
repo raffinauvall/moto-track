@@ -9,7 +9,7 @@ import { ArrowLeft, Check } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "@/api/supabaseClient";
 
-export default function ServiceMotorScreen({ route, navigation }: any) {
+export default function ServiceMotorScreen({ route, navigation, resetComponents }: any) {
   const motorId = route?.params?.motorId;
   const motorName = route?.params?.motorName;
 
@@ -44,61 +44,67 @@ export default function ServiceMotorScreen({ route, navigation }: any) {
     );
   };
 
-  const submitService = async () => {
-    if (!selected.length) {
-      Alert.alert("Pilih minimal satu komponen");
-      return;
-    }
+ const submitService = async () => {
+  if (!selected.length) {
+    Alert.alert("Pilih minimal satu komponen");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
+  try {
+    const serviced = components.filter(c => selected.includes(c.id));
+    const serviceType = serviced.length <= 2 ? "Service Ringan" : "Service Berat";
 
-    try {
-      const serviced = components.filter((c) =>
-        selected.includes(c.id)
-      );
+    // INSERT HISTORY
+    const { data: history, error: historyError } = await supabase
+      .from("service_history")
+      .insert({
+        motor_id: motorId,
+        motor_name: motorName,
+        service_type: serviceType,
+        total_components: serviced.length,
+      })
+      .select()
+      .single();
 
-      const serviceType =
-        serviced.length <= 2 ? "Service Ringan" : "Service Berat";
+    if (historyError) throw historyError;
 
-      // 1️⃣ INSERT HISTORY
-      const { data: history, error } = await supabase
-        .from("service_history")
-        .insert({
-          motor_id: motorId,
-          motor_name: motorName,
-          service_type: serviceType,
-          total_components: serviced.length,
-        })
-        .select()
-        .single();
+    // INSERT DETAIL
+    await supabase.from("motor_services").insert(
+      serviced.map(c => ({
+        motor_id: motorId,
+        service_history_id: history.id,
+        component_id: c.id,
+        component_name: c.name,
+        km_at_service: c.current_value,
+      }))
+    );
 
-      if (error) throw error;
+    // RESET COMPONENTS DI DB
+    await supabase
+      .from("motor_components")
+      .update({ current_value: 0 })
+      .in("id", selected);
 
-      // 2️⃣ INSERT DETAIL KOMPONEN
-      await supabase.from("motor_services").insert(
-        serviced.map((c) => ({
-          motor_id: motorId,
-          service_history_id: history.id,
-          component_id: c.id,
-          component_name: c.name,
-          km_at_service: c.current_value,
-        }))
-      );
+    // AMBIL ULANG DATA KOMPONEN SUPAYA UI HOME UPDATE
+    const { data: updatedComponents } = await supabase
+      .from("motor_components")
+      .select("*")
+      .eq("motor_id", motorId);
 
-      // 3️⃣ RESET KOMPONEN
-      await supabase
-        .from("motor_components")
-        .update({ current_value: 0 })
-        .in("id", selected);
+    setComponents(updatedComponents || []);
 
-      Alert.alert("Service berhasil 🚀");
-      navigation.goBack();
-    } catch (e) {
-      Alert.alert("Gagal menyimpan service");
-    } finally {
-      setLoading(false);
-    }
-  };
+    Alert.alert("Service berhasil 🚀");
+    navigation.goBack();
+  } catch (e) {
+    console.error(e);
+    Alert.alert("Gagal menyimpan service");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <View className="flex-1 bg-[#131313]">
