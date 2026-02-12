@@ -5,7 +5,7 @@ import PinnedComponents from "@/components/home/PinnedComponents";
 import { useActiveMotor } from "@/context/ActiveMotorContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/api/supabaseClient";
-import { useRideTracker } from "@/hooks/useRideTracker";
+import { useRideTracker } from "@/hooks/motor/useRideTracker";
 
 type HomeScreenProps = { setIndex: (i: number) => void };
 

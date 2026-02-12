@@ -2,6 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { Mail, Lock } from "lucide-react-native";
 import { useState } from "react";
 import { supabase } from "@/api/supabaseClient";
+import { ToastService } from "@/utils/toastService";
 
 export default function LoginScreen({navigation}: any) {
   const [ email, setEmail ] = useState("");
@@ -12,7 +13,8 @@ export default function LoginScreen({navigation}: any) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      Alert.alert(
+      ToastService.show(
+        "success",
         "Login Berhasil",
         `Selamat datang, ${data.user?.user_metadata.name || "User"}`
       );
