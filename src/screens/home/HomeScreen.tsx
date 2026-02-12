@@ -87,7 +87,7 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
         disabled={!activeMotor}
         onPress={isRiding ? stopRide : startRide}
         style={{
-          marginTop: 24,
+          marginTop: 14,
           backgroundColor: activeMotor ? "#34D399" : "#374151",
           paddingVertical: 16,
           borderRadius: 16,
@@ -97,7 +97,7 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
         <Text
           style={{
             color: activeMotor ? "#052e2b" : "#9CA3AF",
-            fontWeight: "bold",
+            fontFamily: "MaisonNeue-Bold",
             fontSize: 16,
           }}
         >

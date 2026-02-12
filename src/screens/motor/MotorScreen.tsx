@@ -163,7 +163,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
       <MotorHeader motorName="My Motors" />
 
       {loading && (
-        <Text className="text-gray-400 text-center mt-8">
+        <Text className="text-gray-400 font-maison text-center mt-8">
           Loading motors...
         </Text>
       )}
@@ -210,7 +210,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
 
                 <MotorHealthBar value={motor.health ?? 100} />
 
-                <Text className="text-xs text-gray-400 mt-2">
+                <Text className="text-xs text-gray-400 mt-2 font-maison">
                   {status.note}
                 </Text>
               </TouchableOpacity>

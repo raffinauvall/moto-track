@@ -53,7 +53,7 @@ export default function PinnedComponents({
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        marginTop: 16,
+        marginTop: 15,
       }}
     >
       {pinnedComponents.map((comp) => {
@@ -85,7 +85,7 @@ export default function PinnedComponents({
             key={comp.id}
             style={{
               width: "48%",
-              marginBottom: 16,
+              
             }}
           >
             <CircularWidget
