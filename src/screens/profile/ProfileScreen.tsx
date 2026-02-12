@@ -80,11 +80,11 @@ export default function ProfileScreen({ navigation }: any) {
           className="w-28 h-28 rounded-full mb-4 border-4 border-neutral-700"
         />
 
-        <Text className="text-white text-2xl font-bold">
+        <Text className="text-white text-2xl font-maisonBold">
           {user.user_metadata?.name || "Rider"}
         </Text>
 
-        <Text className="text-neutral-400 text-sm mt-1">
+        <Text className="text-neutral-400 text-sm mt-1 font-maison">
           {user.email}
         </Text>
       </View>
@@ -94,19 +94,19 @@ export default function ProfileScreen({ navigation }: any) {
         <View className="w-[48%] bg-[#212121] p-5 rounded-2xl">
           <View className="flex-row items-center justify-between">
             <Bike color="#22C55E" size={22} />
-            <Text className="text-emerald-400 text-xl font-bold">
+            <Text className="text-emerald-400 text-xl font-maisonBold">
               {motorCount}
             </Text>
           </View>
-          <Text className="text-neutral-400 mt-3">Motors</Text>
+          <Text className="text-neutral-400 mt-3 font-maison">Motors</Text>
         </View>
 
         <View className="w-[48%] bg-[#212121] p-5 rounded-2xl">
           <View className="flex-row items-center justify-between">
             <Wrench color="#FACC15" size={22} />
-            <Text className="text-yellow-400 text-xl font-bold">{serviceCount}</Text>
+            <Text className="text-yellow-400 text-xl font-maisonBold">{serviceCount}</Text>
           </View>
-          <Text className="text-neutral-400 mt-3">Services</Text>
+          <Text className="text-neutral-400 mt-3 font-maison">Services</Text>
         </View>
       </View>
 
@@ -116,7 +116,7 @@ export default function ProfileScreen({ navigation }: any) {
         className="m-6 bg-[#2a2a2a] py-4 rounded-2xl flex-row justify-center items-center"
       >
         <LogOut size={18} color="#EF4444" />
-        <Text className="text-red-400 ml-2">Logout</Text>
+        <Text className="text-red-500 ml-2 font-maisonBold">Logout</Text>
       </TouchableOpacity>
     </ScrollView>
   );
