@@ -8,7 +8,7 @@ import {
 import { ChevronRight, Droplet, Wrench } from "lucide-react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { supabase } from "@/api/supabaseClient";
+import { GetService } from "@/api/service/getService";
 
 export default function HistoryMotorScreen() {
   const navigation = useNavigation<any>();
@@ -17,12 +17,13 @@ export default function HistoryMotorScreen() {
 
   const fetchHistory = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("service_history")
-      .select("*")
-      .order("service_date", { ascending: false });
-
-    setHistory(data || []);
+    try {
+      const data = await GetService();
+      setHistory(data);
+    } catch (error) {
+      console.error("Error fetching history:", error);
+      setHistory([]);
+    }
     setLoading(false);
   };
 
@@ -42,8 +43,7 @@ export default function HistoryMotorScreen() {
 
       {!loading &&
         history.map((service) => {
-          const isRingan =
-            service.service_type === "Service Ringan";
+          const isRingan = service.service_type === "Service Ringan";
 
           return (
             <TouchableOpacity
