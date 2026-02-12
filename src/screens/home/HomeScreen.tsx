@@ -9,12 +9,8 @@ import PinnedComponents from "@/components/home/PinnedComponents";
 import { useActiveMotor } from "@/context/ActiveMotorContext";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/api/supabaseClient";
-<<<<<<< HEAD
-import { useRideTracker } from "@/hooks/useRideTracker";
 import { useFocusEffect } from "@react-navigation/native";
-=======
 import { useRideTracker } from "@/hooks/motor/useRideTracker";
->>>>>>> 50aa01b310cb9688d056aef86861add7f9f14e9b
 
 type HomeScreenProps = { setIndex: (i: number) => void };
 
