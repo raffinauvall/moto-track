@@ -32,9 +32,9 @@ export default function CircularWidget({
       className="bg-[#212121] p-4 rounded-3xl items-center mb-4"
     >
       {/* Header */}
-      <View className="flex-row items-center justify-center gap-3 mb-2">
+      <View className="flex-row items-center ustify-center gap-3 mb-2">
         <Icon color={color} size={26} />
-        <Text className="text-white text-xs">{label}</Text>
+        <Text className="text-white text-xs font-maison">{label}</Text>
       </View>
 
       {/* Circle */}
@@ -65,10 +65,10 @@ export default function CircularWidget({
 
         {/* Text */}
         <View className="absolute inset-0 items-center justify-center">
-          <Text className="text-white font-bold">
+          <Text className="text-white font-bold font-maisonBold">
             {current}/{max}
           </Text>
-          <Text className="text-neutral-400 text-xs">km</Text>
+          <Text className="text-neutral-400 text-xs font-maison">km</Text>
         </View>
       </View>
     </View>
