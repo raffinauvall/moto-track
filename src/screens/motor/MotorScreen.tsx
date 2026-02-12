@@ -70,7 +70,7 @@ const StatusIcon = ({ value }: { value: number }) => {
 export default function MotorScreen({ setIndex }: MotorScreenProps) {
   const navigation = useNavigation<any>();
   const { setActiveMotorState } = useActiveMotor();
-  const insets = useSafeAreaInsets(); // ✅ FIX BOTTOM TAB
+  const insets = useSafeAreaInsets();
 
   const [motors, setMotors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -84,7 +84,6 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
     return unsub;
   }, [navigation]);
 
-  /* ================= FETCH ================= */
   const fetchMotors = async () => {
     setLoading(true);
     try {
@@ -110,7 +109,6 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
     }
   };
 
-  /* ================= DELETE ================= */
   const confirmDelete = (motorId: string, motorName: string) => {
     Alert.alert(
       "Delete Motor",
@@ -123,9 +121,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
           onPress: async () => {
             try {
               await DeleteMotor(motorId);
-              setMotors(prev =>
-                prev.filter(m => m.id !== motorId)
-              );
+              setMotors(prev => prev.filter(m => m.id !== motorId));
               Alert.alert("Success", "Motor berhasil dihapus!");
             } catch (err: any) {
               Alert.alert("Error", err.message);
@@ -136,7 +132,6 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
     );
   };
 
-  /* ================= SET ACTIVE ================= */
   const handleSetActive = async (motor: any) => {
     try {
       const { data } = await supabase.auth.getUser();
@@ -144,122 +139,115 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
 
       await setActiveMotor(motor.id, data.user.id);
       setActiveMotorState(motor);
-
       fetchMotors();
     } catch (err: any) {
       Alert.alert("Error", err.message);
     }
   };
 
-  /* ================= UI ================= */
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-        padding: 24,
-        paddingBottom: insets.bottom + 100, // ✅ FIX KETUTUP TAB
-        backgroundColor: "#131313",
-      }}
-      showsVerticalScrollIndicator={false}
-    >
-      <MotorHeader motorName="My Motors" />
+    <View className="flex-1 bg-[#131313]">
+      {/* SCROLL AREA */}
+      <ScrollView
+        contentContainerStyle={{
+          padding: 24,
+          paddingBottom: insets.bottom + 120, // ruang biar gak ketutup FAB
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <MotorHeader motorName="My Motors" />
 
-      {loading && (
-        <Text className="text-gray-400 font-maison text-center mt-8">
-          Loading motors...
-        </Text>
-      )}
+        {loading && (
+          <Text className="text-gray-400 text-center mt-8">
+            Loading motors...
+          </Text>
+        )}
 
-      <View className="flex-col gap-3 mt-4">
-        {motors.map(motor => {
-          const status = getStatus(motor.health ?? 100);
+        <View className="flex-col gap-3 mt-4">
+          {motors.map(motor => {
+            const status = getStatus(motor.health ?? 100);
 
-          return (
-            <View
-              key={motor.id}
-              className="w-full bg-[#212121] p-4 rounded-xl"
-            >
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() =>
-                  navigation.navigate("MotorDetail", { motor })
-                }
+            return (
+              <View
+                key={motor.id}
+                className="w-full bg-[#212121] p-4 rounded-xl"
               >
-                <View className="flex-row justify-between mb-3">
-                  <View className="flex-1 pr-3">
-                    <Text className="text-white font-maisonBold text-xl">
-                      {motor.name}
-                    </Text>
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() =>
+                    navigation.navigate("MotorDetail", { motor })
+                  }
+                >
+                  <Text className="text-white font-maisonBold text-xl">
+                    {motor.name}
+                  </Text>
 
-                    <Text className="text-xs text-gray-400">
-                      {motor.is_active ? "Active" : "Non-Active"}
+                  <MotorHealthBar value={motor.health ?? 100} />
+
+                  <Text className="text-xs text-gray-400 mt-2">
+                    {status.note}
+                  </Text>
+                </TouchableOpacity>
+
+                <View className="flex-row items-center gap-3 mt-4">
+                  <View className="flex-row items-center gap-1 mr-auto">
+                    <StatusIcon value={motor.health ?? 100} />
+                    <Text
+                      className="text-xs font-maisonBold"
+                      style={{ color: status.color }}
+                    >
+                      {status.label}
                     </Text>
                   </View>
-                </View>
 
-                <MotorHealthBar value={motor.health ?? 100} />
-
-                <Text className="text-xs text-gray-400 mt-2 font-maison">
-                  {status.note}
-                </Text>
-              </TouchableOpacity>
-
-              <View className="flex-row items-center gap-3 mt-4">
-                <View className="flex-row items-center gap-1 mr-auto">
-                  <StatusIcon value={motor.health ?? 100} />
-                  <Text
-                    className="text-xs font-maisonBold"
-                    style={{ color: status.color }}
-                  >
-                    {status.label}
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("AddEditMotor", { motor })
-                  }
-                >
-                  <Text className="text-[#FACC15] text-xs font-maisonBold">
-                    Edit
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() =>
-                    confirmDelete(motor.id, motor.name)
-                  }
-                >
-                  <Text className="text-[#EF4444] text-xs font-maisonBold">
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-
-                {!motor.is_active && (
                   <TouchableOpacity
-                    onPress={() => handleSetActive(motor)}
+                    onPress={() =>
+                      navigation.navigate("AddEditMotor", { motor })
+                    }
                   >
-                    <Text className="text-[#34D399] text-xs font-maisonBold">
-                      Set Active
+                    <Text className="text-[#FACC15] text-xs font-maisonBold">
+                      Edit
                     </Text>
                   </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          );
-        })}
 
-        {/* ADD MOTOR */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate("AddEditMotor")}
-          className="w-full border-2 border-dashed border-neutral-600 p-6 rounded-xl items-center justify-center mt-2"
-        >
-          <Text className="text-neutral-400 font-maisonBold text-lg">
-            + Add New Motor
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+                  <TouchableOpacity
+                    onPress={() =>
+                      confirmDelete(motor.id, motor.name)
+                    }
+                  >
+                    <Text className="text-[#EF4444] text-xs font-maisonBold">
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+
+                  {!motor.is_active && (
+                    <TouchableOpacity
+                      onPress={() => handleSetActive(motor)}
+                    >
+                      <Text className="text-[#34D399] text-xs font-maisonBold">
+                        Set Active
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* FLOATING ADD BUTTON */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddEditMotor")}
+        activeOpacity={0.85}
+        className="absolute right-6 bg-[#34D399] w-16 h-16 rounded-full items-center justify-center shadow-lg"
+        style={{
+          bottom: insets.bottom + 90,
+          elevation: 8,
+        }}
+      >
+        <Text className="text-black text-3xl font-bold">+</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
