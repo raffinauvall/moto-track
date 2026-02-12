@@ -1,43 +1,87 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import Header from "@/components/home/Header";
 import MotorCard from "@/components/home/MotorCards";
 import PinnedComponents from "@/components/home/PinnedComponents";
 import { useActiveMotor } from "@/context/ActiveMotorContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/api/supabaseClient";
 import { useRideTracker } from "@/hooks/useRideTracker";
+import { useFocusEffect } from "@react-navigation/native";
 
 type HomeScreenProps = { setIndex: (i: number) => void };
 
 export default function HomeScreen({ setIndex }: HomeScreenProps) {
   const { activeMotor, refreshActiveMotor } = useActiveMotor();
-  const { isRiding, kmCounter, componentsState, startRide, stopRide } = useRideTracker(activeMotor);
+
+  const {
+    isRiding,
+    kmCounter,
+    componentsState,
+    startRide,
+    stopRide,
+    reloadComponents, // 🔥 kita pakai ini
+  } = useRideTracker(activeMotor);
+
   const [userName, setUserName] = useState("User");
 
+  /* ================= USER ================= */
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
-      if (data.user) setUserName(data.user.user_metadata?.name || "User");
-      refreshActiveMotor();
+      if (data.user)
+        setUserName(data.user.user_metadata?.name || "User");
     })();
   }, []);
 
+  /* ================= RELOAD SAAT BALIK KE HOME ================= */
+  useFocusEffect(
+    useCallback(() => {
+      refreshActiveMotor();
+      reloadComponents?.(); // 🔥 force reload components
+    }, [activeMotor])
+  );
+
+  /* ================= HEALTH ================= */
+  const calculateHealth = (components: any[]) => {
+    if (!components?.length) return 100;
+
+    const ratios = components.map((c) =>
+      Math.max(0, 1 - c.current_value / c.max_value)
+    );
+
+    return Math.round(
+      (ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100
+    );
+  };
+
+  const health = calculateHealth(componentsState);
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 24, backgroundColor: "#131313" }} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={{
+        flexGrow: 1,
+        padding: 24,
+        backgroundColor: "#131313",
+      }}
+      showsVerticalScrollIndicator={false}
+    >
       <Header name={userName} />
 
-      {/* Motor card */}
       <MotorCard
         motor={activeMotor?.name || "No Active Motor"}
-        health={activeMotor?.health ?? 100}
+        health={health}
         onChangeMotor={() => setIndex(1)}
       />
 
-      {/* Pinned components */}
-      <PinnedComponents activeMotor={activeMotor} componentsState={componentsState}  />
+      <PinnedComponents
+        activeMotor={activeMotor}
+        componentsState={componentsState}
+      />
 
-
-      {/* Start / Stop Ride button */}
       <TouchableOpacity
         activeOpacity={0.8}
         disabled={!activeMotor}
@@ -47,19 +91,21 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
           backgroundColor: activeMotor ? "#34D399" : "#374151",
           paddingVertical: 16,
           borderRadius: 16,
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-        <Text style={{
-          color: activeMotor ? "#052e2b" : "#9CA3AF",
-          fontWeight: "bold",
-          fontSize: 16
-        }}>
-          {isRiding ? `Riding... ${kmCounter.toFixed(2)} km` : "Start Tracking"}
+        <Text
+          style={{
+            color: activeMotor ? "#052e2b" : "#9CA3AF",
+            fontWeight: "bold",
+            fontSize: 16,
+          }}
+        >
+          {isRiding
+            ? `Riding... ${kmCounter.toFixed(2)} km`
+            : "Start Tracking"}
         </Text>
       </TouchableOpacity>
-
-      {!activeMotor && <Text style={{ color: "#9CA3AF", textAlign: "center", marginTop: 12 }}>Pilih motor terlebih dahulu</Text>}
     </ScrollView>
   );
 }

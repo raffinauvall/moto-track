@@ -5,13 +5,10 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/api/supabaseClient";
 
 const COMPONENT_ICONS: Record<string, any> = {
+  Oil: Droplet,
   Oli: Droplet,
+  "Spark Plug": Zap,
   Busi: Zap,
-};
-
-const COMPONENT_COLORS: Record<string, string> = {
-  Oli: "#34D399",
-  Busi: "#FACC15",
 };
 
 export default function PinnedComponents({
@@ -60,19 +57,34 @@ export default function PinnedComponents({
       }}
     >
       {pinnedComponents.map((comp) => {
-        const liveComp = componentsState.find((c) => c.id === comp.id);
+        const liveComp = componentsState.find(
+          (c) => c.id === comp.id
+        );
 
-        const current = liveComp?.current_value ?? comp.current_value;
-        const max = liveComp?.max_value ?? comp.max_value;
+        const current =
+          liveComp?.current_value ?? comp.current_value;
 
-        const Icon = COMPONENT_ICONS[comp.name] || Wrench;
-        const color = COMPONENT_COLORS[comp.name] || "#94A3B8";
+        const max =
+          liveComp?.max_value ?? comp.max_value;
+
+        /* 🔥 SAMA PERSIS KAYAK DETAIL */
+        const ratio = 1 - current / max;
+
+        const color =
+          ratio >= 0.8
+            ? "#22C55E"
+            : ratio >= 0.5
+            ? "#FACC15"
+            : "#EF4444";
+
+        const Icon =
+          COMPONENT_ICONS[comp.name] || Wrench;
 
         return (
           <View
             key={comp.id}
             style={{
-              width: "48%",        // 🔥 2 kolom fix
+              width: "48%",
               marginBottom: 16,
             }}
           >
