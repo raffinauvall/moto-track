@@ -3,6 +3,7 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -11,7 +12,6 @@ import { UpdateMotor } from "@/api/motor/updateMotor";
 import { getMotorModels } from "@/api/motor/getMotorModels";
 
 export default function AddEditMotorScreen({ navigation, route }: any) {
-  const onSave = route.params?.onSave;
   const motor = route.params?.motor;
   const isEdit = !!motor;
 
@@ -21,47 +21,43 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getMotorModels().then((data) => {
-      setModels(data);
+    const loadModels = async () => {
+      try {
+        const data = await getMotorModels();
+        setModels(data);
 
-      if (motor) {
-        const found = data.find(
-          (m: any) => m.name === motor.name && m.brand === motor.brand
-        );
-        if (found) setSelected(found);
+        if (motor) {
+          const found = data.find(
+            (m: any) => m.name === motor.name && m.brand === motor.brand
+          );
+          if (found) setSelected(found);
+        }
+      } catch (error) {
+        Alert.alert("Error", "Failed to load motor models");
       }
-    });
+    };
+
+    loadModels();
   }, []);
 
   const handleSave = async () => {
-    if (!selected) return;
+    if (!selected) {
+      Alert.alert("Warning", "Please choose motor first");
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (isEdit) {
-        const updated = {
-          ...motor,
-          name: selected.name,
-          brand: selected.brand,
-        };
-
-        onSave(updated);
         await UpdateMotor(motor.id, selected.name, selected.brand);
-        navigation.goBack();
-        return;
+      } else {
+        await AddMotor(selected.name, selected.brand);
       }
 
-      const tempId = `temp-${Date.now()}`;
-      onSave({
-        id: tempId,
-        name: selected.name,
-        brand: selected.brand,
-        temp: true,
-      });
-
-      const newMotor = await AddMotor(selected.name, selected.brand);
-      onSave(newMotor, tempId);
       navigation.goBack();
+    } catch (error) {
+      Alert.alert("Error", "Failed to save motor");
     } finally {
       setLoading(false);
     }
@@ -79,8 +75,10 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
         </Text>
       </View>
 
-      {/* INPUT */}
+      {/* LABEL */}
       <Text className="text-neutral-400 mb-2">Motor</Text>
+
+      {/* SELECT */}
       <TouchableOpacity
         onPress={() => setOpen(!open)}
         className="bg-[#212121] rounded-xl px-4 py-4 flex-row items-center justify-between"
@@ -93,7 +91,6 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
         <ChevronDown size={18} color="#aaa" />
       </TouchableOpacity>
 
-      {/* DROPDOWN */}
       {open && (
         <View className="bg-[#212121] rounded-xl mt-2 max-h-64">
           <ScrollView>
@@ -118,8 +115,10 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
       {/* SAVE */}
       <TouchableOpacity
         onPress={handleSave}
-        disabled={loading}
-        className="bg-[#34D399] py-5 rounded-3xl mt-10"
+        disabled={loading || !selected}
+        className={`py-5 rounded-3xl mt-10 ${
+          selected ? "bg-[#34D399]" : "bg-neutral-600"
+        }`}
       >
         <Text className="text-black font-maisonBold text-center text-lg">
           {loading ? "Saving..." : "Save Motor"}
