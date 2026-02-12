@@ -3,10 +3,11 @@ import { Mail, Lock } from "lucide-react-native";
 import { useState } from "react";
 import { supabase } from "@/api/supabaseClient";
 import { ToastService } from "@/utils/toastService";
+import { CommonActions } from "@react-navigation/native";
 
-export default function LoginScreen({navigation}: any) {
-  const [ email, setEmail ] = useState("");
-  const [ password, setPassword ] = useState("");
+export default function LoginScreen({ navigation }: any) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
@@ -18,10 +19,8 @@ export default function LoginScreen({navigation}: any) {
         "Login Berhasil",
         `Selamat datang, ${data.user?.user_metadata.name || "User"}`
       );
-
-      navigation.navigate("MainTabs"); // navigasi setelah login
     } catch (err: any) {
-      Alert.alert("Login Gagal", err.message || "Cek email & password");
+      ToastService.show("error", "Login Gagal", err.message || "Cek email & password");
     }
   };
   return (
@@ -71,7 +70,7 @@ export default function LoginScreen({navigation}: any) {
 
       {/* Login Button */}
       <TouchableOpacity className="mt-5 bg-emerald-500 py-4 rounded-[10px] shadow-xl"
-      onPress={handleLogin}
+        onPress={handleLogin}
       >
         <Text className="text-center font-maisonBold text-black text-lg">
           Login
