@@ -5,9 +5,14 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { CheckCircle, AlertTriangle, XCircle } from "lucide-react-native";
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+} from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import MotorHealthBar from "@/components/motor/MotorHealthBar";
 import MotorHeader from "@/components/motor/MotorHeader";
@@ -65,6 +70,7 @@ const StatusIcon = ({ value }: { value: number }) => {
 export default function MotorScreen({ setIndex }: MotorScreenProps) {
   const navigation = useNavigation<any>();
   const { setActiveMotorState } = useActiveMotor();
+  const insets = useSafeAreaInsets(); // ✅ FIX BOTTOM TAB
 
   const [motors, setMotors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -117,14 +123,9 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
           onPress: async () => {
             try {
               await DeleteMotor(motorId);
-
-              setMotors(prev => prev.filter(m => m.id !== motorId));
-
-              const deletedActive = motors.find(
-                m => m.id === motorId && m.is_active
+              setMotors(prev =>
+                prev.filter(m => m.id !== motorId)
               );
-              if (deletedActive) setActiveMotorState(null);
-
               Alert.alert("Success", "Motor berhasil dihapus!");
             } catch (err: any) {
               Alert.alert("Error", err.message);
@@ -156,6 +157,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
       contentContainerStyle={{
         flexGrow: 1,
         padding: 24,
+        paddingBottom: insets.bottom + 100, // ✅ FIX KETUTUP TAB
         backgroundColor: "#131313",
       }}
       showsVerticalScrollIndicator={false}
@@ -177,34 +179,21 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
               key={motor.id}
               className="w-full bg-[#212121] p-4 rounded-xl"
             >
-              {/* ===== TAP AREA (DETAIL) ===== */}
               <TouchableOpacity
                 activeOpacity={0.9}
                 onPress={() =>
                   navigation.navigate("MotorDetail", { motor })
                 }
               >
-                <View className="flex-row items-start justify-between mb-3">
-                  <View className="flex-1 pr-3" style={{ minWidth: 0 }}>
-                    <Text
-                      className="text-white font-maisonBold text-xl"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
+                <View className="flex-row justify-between mb-3">
+                  <View className="flex-1 pr-3">
+                    <Text className="text-white font-maisonBold text-xl">
                       {motor.name}
                     </Text>
 
                     <Text className="text-xs text-gray-400">
                       {motor.is_active ? "Active" : "Non-Active"}
                     </Text>
-
-                    {motor.is_active && (
-                      <View className="bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 self-start">
-                        <Text className="text-emerald-400 text-[10px] font-maisonBold">
-                          CURRENT MOTOR
-                        </Text>
-                      </View>
-                    )}
                   </View>
                 </View>
 
@@ -215,7 +204,6 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
                 </Text>
               </TouchableOpacity>
 
-              {/* ===== ACTION ROW ===== */}
               <View className="flex-row items-center gap-3 mt-4">
                 <View className="flex-row items-center gap-1 mr-auto">
                   <StatusIcon value={motor.health ?? 100} />
@@ -261,22 +249,10 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
           );
         })}
 
-        {/* ===== ADD MOTOR ===== */}
+        {/* ADD MOTOR */}
         <TouchableOpacity
           activeOpacity={0.85}
-          onPress={() =>
-            navigation.navigate("AddEditMotor", {
-              onSave: async (motor: any) => {
-                const components = await getComponents(motor.id);
-                const health = calcHealth(components);
-
-                setMotors(prev => [
-                  { ...motor, components, health },
-                  ...prev,
-                ]);
-              },
-            })
-          }
+          onPress={() => navigation.navigate("AddEditMotor")}
           className="w-full border-2 border-dashed border-neutral-600 p-6 rounded-xl items-center justify-center mt-2"
         >
           <Text className="text-neutral-400 font-maisonBold text-lg">
