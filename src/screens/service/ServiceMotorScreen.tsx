@@ -8,6 +8,7 @@ import {
 import { ArrowLeft, Check } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "@/api/supabaseClient";
+import { ToastService } from "@/utils/toastService";
 
 export default function ServiceMotorScreen({ route, navigation, resetComponents }: any) {
   const motorId = route?.params?.motorId;
@@ -80,13 +81,11 @@ export default function ServiceMotorScreen({ route, navigation, resetComponents 
       }))
     );
 
-    // RESET COMPONENTS DI DB
     await supabase
       .from("motor_components")
       .update({ current_value: 0 })
       .in("id", selected);
 
-    // AMBIL ULANG DATA KOMPONEN SUPAYA UI HOME UPDATE
     const { data: updatedComponents } = await supabase
       .from("motor_components")
       .select("*")
@@ -94,11 +93,11 @@ export default function ServiceMotorScreen({ route, navigation, resetComponents 
 
     setComponents(updatedComponents || []);
 
-    Alert.alert("Service berhasil 🚀");
+    ToastService.show("success", "Service berhasil 🚀");
     navigation.goBack();
   } catch (e) {
     console.error(e);
-    Alert.alert("Gagal menyimpan service");
+    ToastService.show("error", "Gagal menyimpan service");
   } finally {
     setLoading(false);
   }
