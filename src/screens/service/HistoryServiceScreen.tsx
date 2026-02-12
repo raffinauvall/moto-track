@@ -35,7 +35,7 @@ export default function HistoryMotorScreen() {
 
  return (
   <ScrollView className="flex-1 bg-[#131313] p-4 pt-12">
-    <Text className="text-white text-3xl font-bold mb-6">
+    <Text className="text-white text-3xl font-maisonBold mb-6">
       History Service
     </Text>
 
@@ -43,10 +43,10 @@ export default function HistoryMotorScreen() {
 
     {!loading && history.length === 0 && (
       <View className="flex-1 justify-center items-center mt-20">
-        <Text className="text-gray-400 text-lg text-center">
+        <Text className="text-gray-400 text-lg text-center font-maison">
           Belum ada history service 😔
         </Text>
-        <Text className="text-gray-500 text-sm mt-2 text-center">
+        <Text className="text-gray-500 text-sm mt-2 text-center font-maison">
           Setelah melakukan service, history akan muncul di sini.
         </Text>
       </View>
