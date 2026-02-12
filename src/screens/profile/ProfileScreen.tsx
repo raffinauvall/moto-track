@@ -12,10 +12,12 @@ import { supabase } from "@/api/supabaseClient";
 import { CommonActions } from "@react-navigation/native";
 import { LogOut, Bike, Wrench } from "lucide-react-native";
 import { GetMotor } from "@/api/motor/getMotor";
+import { GetService } from "@/api/service/getService";
 
 export default function ProfileScreen({ navigation }: any) {
   const [user, setUser] = useState<any>(null);
   const [motorCount, setMotorCount] = useState(0);
+  const [serviceCount, setServiceCount] = useState(0);
 
   useEffect(() => {
     const init = async () => {
@@ -33,6 +35,23 @@ export default function ProfileScreen({ navigation }: any) {
 
     init();
   }, []);
+    useEffect(() => {
+    const init = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        setUser(data.user);
+
+
+        const service = await GetService();
+        setServiceCount(service.length);
+      } catch (err: any) {
+        Alert.alert("Error", err.message);
+      }
+    };
+
+    init();
+  }, []);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -85,7 +104,7 @@ export default function ProfileScreen({ navigation }: any) {
         <View className="w-[48%] bg-[#212121] p-5 rounded-2xl">
           <View className="flex-row items-center justify-between">
             <Wrench color="#FACC15" size={22} />
-            <Text className="text-yellow-400 text-xl font-bold">5</Text>
+            <Text className="text-yellow-400 text-xl font-bold">{serviceCount}</Text>
           </View>
           <Text className="text-neutral-400 mt-3">Services</Text>
         </View>
