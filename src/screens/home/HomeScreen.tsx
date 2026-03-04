@@ -23,7 +23,7 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
     componentsState,
     startRide,
     stopRide,
-    reloadComponents, // 🔥 kita pakai ini
+    reloadComponents, 
   } = useRideTracker(activeMotor);
 
   const [userName, setUserName] = useState("User");
@@ -41,7 +41,7 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
   useFocusEffect(
     useCallback(() => {
       refreshActiveMotor();
-      reloadComponents?.(); // 🔥 force reload components
+      reloadComponents?.(); 
     }, [activeMotor])
   );
 
