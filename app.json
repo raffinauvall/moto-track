@@ -3,16 +3,6 @@
     "name": "moto-track",
     "slug": "moto-track",
     "version": "1.0.0",
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
-    "experiments": {
-      "tsconfigPaths": true
-    },
-    "plugins": [
-      "expo-font"
-    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,24 +11,31 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": ["expo-font"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.raffinauvaltaqy.mototrack",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.raffinauvaltaqy.mototrack"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "11a3a5f6-26ff-4f51-9646-5ffc39cf86ce"
       }
     },
-    "owner": "raffinauvaltaqy"
+    "extra": {
+      "SUPABASE_URL": "https://mhpsxlvswjlmawqcopza.supabase.co",
+      "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ocHN4bHZzd2psbWF3cWNvcHphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NTc4MjgsImV4cCI6MjA4NjEzMzgyOH0.329ovTqtPJE32qMQ-wsUCqmpl4vZhFfdeVDsso68r4g",
+      "eas": {
+        "projectId": "6d43721c-c4a5-40c1-bde5-ad148bab50c5"
+      }
+    }
   }
 }
