@@ -1,6 +1,6 @@
 import { supabase } from "../supabaseClient";
 
-export async function UpdateMotor(id: string, name: string, brand?: string) {
+export async function updateMotor(id: string, name: string, brand?: string) {
   const { data, error } = await supabase
     .from("motors")
     .update({ name, brand })

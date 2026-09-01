@@ -8,41 +8,28 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import { supabase } from "@/api/supabaseClient";
 import { CommonActions } from "@react-navigation/native";
 import { LogOut, Bike, Wrench } from "lucide-react-native";
-import { GetMotor } from "@/api/motor/getMotor";
-import { GetService } from "@/api/service/getService";
+import { getMotor } from "@/api/motor/getMotor";
+import { getService } from "@/api/service/getService";
+import { getCurrentUser, signOut } from "@/api";
+import type { AppUser } from "@/types";
 
 export default function ProfileScreen({ navigation }: any) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [motorCount, setMotorCount] = useState(0);
   const [serviceCount, setServiceCount] = useState(0);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const { data } = await supabase.auth.getUser();
-        setUser(data.user);
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
 
-
-        const motors = await GetMotor();
+        const motors = await getMotor();
         setMotorCount(motors.length);
-      } catch (err: any) {
-        Alert.alert("Error", err.message);
-      }
-    };
 
-    init();
-  }, []);
-    useEffect(() => {
-    const init = async () => {
-      try {
-        const { data } = await supabase.auth.getUser();
-        setUser(data.user);
-
-
-        const service = await GetService();
+        const service = await getService();
         setServiceCount(service.length);
       } catch (err: any) {
         Alert.alert("Error", err.message);
@@ -52,9 +39,8 @@ export default function ProfileScreen({ navigation }: any) {
     init();
   }, []);
 
-
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
 
     navigation.dispatch(
       CommonActions.reset({
@@ -109,7 +95,6 @@ export default function ProfileScreen({ navigation }: any) {
           <Text className="text-neutral-400 mt-3 font-maison">Services</Text>
         </View>
       </View>
-
 
       <TouchableOpacity
         onPress={handleLogout}

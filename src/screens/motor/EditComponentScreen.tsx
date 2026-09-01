@@ -8,8 +8,8 @@ import {
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { ArrowLeft, Trash2, Save } from "lucide-react-native";
 import { useState } from "react";
-import { deleteComponents } from "@/api/motorComponent/deleteComponents";
-import { updateComponents } from "@/api/motorComponent/updateComponents";
+import { updateComponentValue } from "@/api/motorComponent/updateComponentValue";
+import { deleteComponent } from "@/api/motorComponent/deleteComponent";
 
 export default function EditComponentScreen() {
   const route = useRoute<any>();
@@ -39,7 +39,7 @@ export default function EditComponentScreen() {
 
     try {
       setLoading(true);
-      await updateComponents(component.id, value);
+      await updateComponentValue(component.id, value);
       navigation.goBack();
     } catch (err: any) {
       Alert.alert("Error", err.message);
@@ -59,7 +59,7 @@ export default function EditComponentScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteComponents(component.id);
+              await deleteComponent(component.id);
               navigation.goBack();
             } catch (err: any) {
               Alert.alert("Error", err.message);

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(npm:*)",
+      "Shell(npm view xcode version dependencies 2>&1; echo \"---\"; npm view uuid version 2>&1; echo \"---\"; npm view metro version 2>&1; echo \"---\"; npm view metro-transform-worker version 2>&1)",
+      "Shell(rm node_modules/.package-lock.json && npm install 2>&1 | tail -6; echo \"=== now? ===\"; ls -d node_modules/eslint-config-expo 2>&1; npm ls eslint-config-expo 2>&1 | head -4)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

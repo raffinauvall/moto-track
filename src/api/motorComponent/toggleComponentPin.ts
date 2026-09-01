@@ -1,18 +1,14 @@
 import { supabase } from "../supabaseClient";
 import type { MotorComponent } from "@/types";
 
-export const addComponent = async (payload: {
-  motor_id: string;
-  name: string;
-  max_value: number;
-  current_value: number;
-}) => {
+export async function toggleComponentPin(component: MotorComponent) {
   const { data, error } = await supabase
     .from("motor_components")
-    .insert(payload)
+    .update({ is_pinned: !component.is_pinned })
+    .eq("id", component.id)
     .select()
     .single();
 
   if (error) throw error;
   return data as MotorComponent;
-};
+}

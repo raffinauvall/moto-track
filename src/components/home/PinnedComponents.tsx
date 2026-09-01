@@ -2,7 +2,8 @@ import { View } from "react-native";
 import CircularWidget from "./CircularStats";
 import { Droplet, Zap, Wrench } from "lucide-react-native";
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/api/supabaseClient";
+import { getPinnedComponents } from "@/api/motorComponent/getPinnedComponents";
+import type { Motor, MotorComponent } from "@/types";
 
 const COMPONENT_ICONS: Record<string, any> = {
   Oil: Droplet,
@@ -15,10 +16,10 @@ export default function PinnedComponents({
   activeMotor,
   componentsState,
 }: {
-  activeMotor: any;
-  componentsState: any[];
+  activeMotor: Motor | null;
+  componentsState: MotorComponent[];
 }) {
-  const [pinnedComponents, setPinnedComponents] = useState<any[]>([]);
+  const [pinnedComponents, setPinnedComponents] = useState<MotorComponent[]>([]);
 
   const fetchPinnedComponents = useCallback(async () => {
     if (!activeMotor) {
@@ -26,19 +27,12 @@ export default function PinnedComponents({
       return;
     }
 
-    const { data, error } = await supabase
-      .from("motor_components")
-      .select("*")
-      .eq("motor_id", activeMotor.id)
-      .eq("is_pinned", true)
-      .limit(4);
-
-    if (error) {
+    try {
+      const data = await getPinnedComponents(activeMotor.id);
+      setPinnedComponents(data);
+    } catch (error) {
       console.error("Error fetching pinned components:", error);
-      return;
     }
-
-    if (data) setPinnedComponents(data);
   }, [activeMotor]);
 
   useEffect(() => {
@@ -57,35 +51,25 @@ export default function PinnedComponents({
       }}
     >
       {pinnedComponents.map((comp) => {
-        const liveComp = componentsState.find(
-          (c) => c.id === comp.id
-        );
+        const liveComp = componentsState.find((c) => c.id === comp.id);
 
-        const current =
-          liveComp?.current_value ?? comp.current_value;
+        const current = liveComp?.current_value ?? comp.current_value;
 
-        const max =
-          liveComp?.max_value ?? comp.max_value;
+        const max = liveComp?.max_value ?? comp.max_value;
 
         /* 🔥 SAMA PERSIS KAYAK DETAIL */
         const ratio = 1 - current / max;
 
         const color =
-          ratio >= 0.8
-            ? "#22C55E"
-            : ratio >= 0.5
-            ? "#FACC15"
-            : "#EF4444";
+          ratio >= 0.8 ? "#22C55E" : ratio >= 0.5 ? "#FACC15" : "#EF4444";
 
-        const Icon =
-          COMPONENT_ICONS[comp.name] || Wrench;
+        const Icon = COMPONENT_ICONS[comp.name] || Wrench;
 
         return (
           <View
             key={comp.id}
             style={{
               width: "48%",
-              
             }}
           >
             <CircularWidget

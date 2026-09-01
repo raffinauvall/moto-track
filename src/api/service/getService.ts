@@ -1,7 +1,10 @@
 import { supabase } from "../supabaseClient";
+import type { ServiceHistory } from "@/types";
 
-export async function GetService() {
-  const { data: { user } } = await supabase.auth.getUser();
+export async function getService() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data: motors, error: motorError } = await supabase
@@ -21,5 +24,5 @@ export async function GetService() {
     .order("service_date", { ascending: false });
 
   if (error) throw error;
-  return data || [];
+  return (data || []) as ServiceHistory[];
 }

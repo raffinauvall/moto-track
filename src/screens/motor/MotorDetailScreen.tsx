@@ -14,8 +14,8 @@ import {
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { getComponents } from "@/api/motorComponent/getComponents";
+import { toggleComponentPin } from "@/api/motorComponent/toggleComponentPin";
 import CircularWidget from "@/components/home/CircularStats";
-import { supabase } from "@/api/supabaseClient";
 
 /* ================= HELPERS ================= */
 const getStatus = (value: number) => {
@@ -77,10 +77,7 @@ export default function MotorDetailScreen({ route, navigation }: any) {
         return;
       }
 
-      await supabase
-        .from("motor_components")
-        .update({ is_pinned: !isPinned })
-        .eq("id", component.id);
+      await toggleComponentPin(component);
 
       fetchComponents();
       onRefreshPinned?.();

@@ -8,9 +8,10 @@ import MotorCard from "@/components/home/MotorCards";
 import PinnedComponents from "@/components/home/PinnedComponents";
 import { useActiveMotor } from "@/context/ActiveMotorContext";
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/api/supabaseClient";
+import { getCurrentUser } from "@/api";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRideTracker } from "@/hooks/motor/useRideTracker";
+import type { MotorComponent } from "@/types";
 
 type HomeScreenProps = { setIndex: (i: number) => void };
 
@@ -23,7 +24,7 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
     componentsState,
     startRide,
     stopRide,
-    reloadComponents, 
+    reloadComponents,
   } = useRideTracker(activeMotor);
 
   const [userName, setUserName] = useState("User");
@@ -31,9 +32,8 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
   /* ================= USER ================= */
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data.user)
-        setUserName(data.user.user_metadata?.name || "User");
+      const user = await getCurrentUser();
+      if (user) setUserName(user.user_metadata?.name || "User");
     })();
   }, []);
 
@@ -41,12 +41,12 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
   useFocusEffect(
     useCallback(() => {
       refreshActiveMotor();
-      reloadComponents?.(); 
+      reloadComponents?.();
     }, [activeMotor])
   );
 
   /* ================= HEALTH ================= */
-  const calculateHealth = (components: any[]) => {
+  const calculateHealth = (components: MotorComponent[]) => {
     if (!components?.length) return 100;
 
     const ratios = components.map((c) =>

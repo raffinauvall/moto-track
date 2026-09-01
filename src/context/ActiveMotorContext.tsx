@@ -1,7 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { supabase } from "@/api/supabaseClient";
-
-type Motor = any;
+import React, { createContext, useState, useContext, useCallback } from "react";
+import { getActiveMotor } from "@/api/motor/getActiveMotor";
+import type { Motor } from "@/types";
 
 type ActiveMotorContextType = {
   activeMotor: Motor | null;
@@ -15,28 +14,28 @@ const ActiveMotorContext = createContext<ActiveMotorContextType>({
   refreshActiveMotor: async () => {},
 });
 
-export const ActiveMotorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ActiveMotorProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [activeMotor, setActiveMotorState] = useState<Motor | null>(null);
 
-  const refreshActiveMotor = async () => {
+  const refreshActiveMotor = useCallback(async () => {
     try {
-      const { data } = await supabase
-        .from("motors")
-        .select("*")
-        .eq("is_active", true)
-        .single();
-      setActiveMotorState(data || null);
+      const motor = await getActiveMotor();
+      setActiveMotorState(motor);
     } catch {
       setActiveMotorState(null);
     }
-  };
-
-  useEffect(() => {
-    refreshActiveMotor();
   }, []);
 
+  React.useEffect(() => {
+    refreshActiveMotor();
+  }, [refreshActiveMotor]);
+
   return (
-    <ActiveMotorContext.Provider value={{ activeMotor, setActiveMotorState, refreshActiveMotor }}>
+    <ActiveMotorContext.Provider
+      value={{ activeMotor, setActiveMotorState, refreshActiveMotor }}
+    >
       {children}
     </ActiveMotorContext.Provider>
   );

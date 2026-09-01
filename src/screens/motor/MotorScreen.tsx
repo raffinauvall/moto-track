@@ -19,11 +19,11 @@ import MotorHeader from "@/components/motor/MotorHeader";
 import { useActiveMotor } from "@/context/ActiveMotorContext";
 
 // API
-import { GetMotor } from "@/api/motor/getMotor";
-import { DeleteMotor } from "@/api/motor/deleteMotor";
+import { getMotor } from "@/api/motor/getMotor";
+import { deleteMotor } from "@/api/motor/deleteMotor";
 import { getComponents } from "@/api/motorComponent/getComponents";
 import { setActiveMotor } from "@/api/motor/setActiveMotor";
-import { supabase } from "@/api/supabaseClient";
+import { getCurrentUser } from "@/api";
 
 interface MotorScreenProps {
   setIndex: (i: number) => void;
@@ -87,7 +87,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
   const fetchMotors = async () => {
     setLoading(true);
     try {
-      const data = await GetMotor();
+      const data = await getMotor();
 
       const motorsWithComponents = await Promise.all(
         data.map(async (motor: any) => {
@@ -120,7 +120,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
           style: "destructive",
           onPress: async () => {
             try {
-              await DeleteMotor(motorId);
+              await deleteMotor(motorId);
               setMotors(prev => prev.filter(m => m.id !== motorId));
               Alert.alert("Success", "Motor berhasil dihapus!");
             } catch (err: any) {
@@ -134,10 +134,10 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
 
   const handleSetActive = async (motor: any) => {
     try {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) return;
+      const user = await getCurrentUser();
+      if (!user) return;
 
-      await setActiveMotor(motor.id, data.user.id);
+      await setActiveMotor(motor.id, user.id);
       setActiveMotorState(motor);
       fetchMotors();
     } catch (err: any) {

@@ -1,6 +1,7 @@
 import { supabase } from "../supabaseClient";
+import type { ServiceDetail } from "@/types";
 
-export async function GetServiceDetails(historyId: string) {
+export async function getServiceDetails(historyId: string) {
   if (!historyId) return [];
 
   const { data, error } = await supabase
@@ -9,5 +10,5 @@ export async function GetServiceDetails(historyId: string) {
     .eq("service_history_id", historyId);
 
   if (error) throw error;
-  return data || [];
+  return (data || []) as ServiceDetail[];
 }

@@ -1,19 +1,23 @@
 import { useState, useCallback } from "react";
-import { supabase } from "@/api/supabaseClient";
+import { getPinnedComponents } from "@/api/motorComponent/getPinnedComponents";
+import type { MotorComponent } from "@/types";
 
 export function usePinnedComponents(motorId: string | null) {
-    const [pinnedComponents, setPinnedComponents] = useState<any[]>([]);
+  const [pinnedComponents, setPinnedComponents] = useState<MotorComponent[]>([]);
 
-    const fetchPinned = useCallback(async () => {
-        if (!motorId) return setPinnedComponents([]);
-        const { data, error } = await supabase
-            .from("motor_components")
-            .select("*")
-            .eq("motor_id", motorId)
-            .eq("is_pinned", true)
-            .limit(4);
-        if (!error && data) setPinnedComponents(data);
-    }, [motorId]);
+  const fetchPinned = useCallback(async () => {
+    if (!motorId) {
+      setPinnedComponents([]);
+      return;
+    }
+    try {
+      const data = await getPinnedComponents(motorId);
+      setPinnedComponents(data);
+    } catch (error) {
+      console.error("Error fetching pinned components:", error);
+      setPinnedComponents([]);
+    }
+  }, [motorId]);
 
-    return { pinnedComponents, fetchPinned };
+  return { pinnedComponents, fetchPinned };
 }

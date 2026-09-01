@@ -7,20 +7,13 @@ import {
 } from "react-native";
 import { ArrowLeft, Check } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { supabase } from "@/api/supabaseClient";
+import { getComponents } from "@/api/motorComponent/getComponents";
+import { createService } from "@/api/service/createService";
 import { ToastService } from "@/utils/toastService";
 
-export default function ServiceMotorScreen({ route, navigation, resetComponents }: any) {
+export default function ServiceMotorScreen({ route, navigation }: any) {
   const motorId = route?.params?.motorId;
   const motorName = route?.params?.motorName;
-
-  if (!motorId) {
-    return (
-      <View className="flex-1 bg-[#131313] items-center justify-center">
-        <Text className="text-white">Motor tidak ditemukan</Text>
-      </View>
-    );
-  }
 
   const [components, setComponents] = useState<any[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -31,12 +24,12 @@ export default function ServiceMotorScreen({ route, navigation, resetComponents 
   }, []);
 
   const fetchComponents = async () => {
-    const { data } = await supabase
-      .from("motor_components")
-      .select("*")
-      .eq("motor_id", motorId);
-
-    setComponents(data || []);
+    try {
+      const data = await getComponents(motorId);
+      setComponents(data || []);
+    } catch (e) {
+      Alert.alert("Error", "Gagal memuat komponen");
+    }
   };
 
   const toggleSelect = (id: string) => {
@@ -45,65 +38,45 @@ export default function ServiceMotorScreen({ route, navigation, resetComponents 
     );
   };
 
- const submitService = async () => {
-  if (!selected.length) {
-    Alert.alert("Pilih minimal satu komponen");
-    return;
-  }
+  const submitService = async () => {
+    if (!selected.length) {
+      Alert.alert("Pilih minimal satu komponen");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const serviced = components.filter(c => selected.includes(c.id));
-    const serviceType = serviced.length <= 2 ? "Service Ringan" : "Service Berat";
+    setLoading(true);
+    try {
+      const serviced = components.filter((c) => selected.includes(c.id));
+      const serviceType =
+        serviced.length <= 2 ? "Service Ringan" : "Service Berat";
 
-    // INSERT HISTORY
-    const { data: history, error: historyError } = await supabase
-      .from("service_history")
-      .insert({
-        motor_id: motorId,
-        motor_name: motorName,
-        service_type: serviceType,
-        total_components: serviced.length,
-      })
-      .select()
-      .single();
+      await createService({
+        motorId,
+        motorName,
+        serviceType,
+        components: serviced,
+      });
 
-    if (historyError) throw historyError;
+      const updatedComponents = await getComponents(motorId);
+      setComponents(updatedComponents || []);
 
-    // INSERT DETAIL
-    await supabase.from("motor_services").insert(
-      serviced.map(c => ({
-        motor_id: motorId,
-        service_history_id: history.id,
-        component_id: c.id,
-        component_name: c.name,
-        km_at_service: c.current_value,
-      }))
+      ToastService.show("success", "Service berhasil 🚀");
+      navigation.goBack();
+    } catch (e) {
+      console.error(e);
+      ToastService.show("error", "Gagal menyimpan service");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!motorId) {
+    return (
+      <View className="flex-1 bg-[#131313] items-center justify-center">
+        <Text className="text-white">Motor tidak ditemukan</Text>
+      </View>
     );
-
-    await supabase
-      .from("motor_components")
-      .update({ current_value: 0 })
-      .in("id", selected);
-
-    const { data: updatedComponents } = await supabase
-      .from("motor_components")
-      .select("*")
-      .eq("motor_id", motorId);
-
-    setComponents(updatedComponents || []);
-
-    ToastService.show("success", "Service berhasil 🚀");
-    navigation.goBack();
-  } catch (e) {
-    console.error(e);
-    ToastService.show("error", "Gagal menyimpan service");
-  } finally {
-    setLoading(false);
   }
-};
-
-
 
   return (
     <View className="flex-1 bg-[#131313]">

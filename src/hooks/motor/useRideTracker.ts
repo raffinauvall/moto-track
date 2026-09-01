@@ -1,45 +1,42 @@
-// hooks/useRideTracker.ts
 import { useState, useRef, useEffect, useCallback } from "react";
 import * as Location from "expo-location";
-import { supabase } from "@/api/supabaseClient";
+import { getComponents } from "@/api/motorComponent/getComponents";
+import { updateComponentValues } from "@/api/motorComponent/updateComponentValues";
+import { startRide as apiStartRide, updateRideDistance } from "@/api";
 import { getDistanceFromLatLonInKm, requestLocationPermission } from "@/utils/location";
+import type { Motor, MotorComponent } from "@/types";
 
-export function useRideTracker(activeMotor: any) {
+export function useRideTracker(activeMotor: Motor | null) {
   const [isRiding, setIsRiding] = useState(false);
   const [kmCounter, setKmCounter] = useState(0);
   const [rideId, setRideId] = useState<string | null>(null);
-  const [componentsState, setComponentsState] = useState<any[]>([]);
+  const [componentsState, setComponentsState] = useState<MotorComponent[]>([]);
 
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const lastPosition = useRef<{ latitude: number; longitude: number } | null>(null);
   const kmRef = useRef<number>(0);
-  const componentsRef = useRef<any[]>([]);
+  const componentsRef = useRef<MotorComponent[]>([]);
 
   /* ================= FETCH COMPONENTS ================= */
   const fetchComponents = useCallback(async (force = false) => {
     // skip fetch kalau lagi riding kecuali force=true
     if (!activeMotor || (isRiding && !force)) return;
 
-    const { data, error } = await supabase
-      .from("motor_components")
-      .select("*")
-      .eq("motor_id", activeMotor.id);
-
-    if (error) {
+    const formatted = await getComponents(activeMotor.id).catch((error) => {
       console.error("fetchComponents error:", error);
-      return;
-    }
+      return [] as MotorComponent[];
+    });
 
-    const formatted = data?.map(c => ({
+    const parsed = formatted.map((c) => ({
       ...c,
-      current_value: parseFloat(c.current_value),
-      max_value: parseFloat(c.max_value),
-    })) || [];
+      current_value: Number(c.current_value),
+      max_value: Number(c.max_value),
+    }));
 
     // update state hanya kalau ga lagi riding
     if (!isRiding) {
-      setComponentsState(formatted);
-      componentsRef.current = formatted;
+      setComponentsState(parsed);
+      componentsRef.current = parsed;
     }
   }, [activeMotor, isRiding]);
 
@@ -52,14 +49,9 @@ export function useRideTracker(activeMotor: any) {
     if (!activeMotor) return;
 
     try {
-      const { data, error } = await supabase
-        .from("rides")
-        .insert([{ motor_id: activeMotor.id, distance: 0 }])
-        .select()
-        .single();
-      if (error) throw error;
+      const ride = await apiStartRide(activeMotor.id);
 
-      setRideId(data.id);
+      setRideId(ride.id);
       setIsRiding(true);
       setKmCounter(0);
       kmRef.current = 0;
@@ -74,7 +66,7 @@ export function useRideTracker(activeMotor: any) {
 
       locationSubscription.current = await Location.watchPositionAsync(
         { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 1 },
-        location => {
+        (location) => {
           const { latitude, longitude } = location.coords;
 
           let distanceDelta = 0;
@@ -93,9 +85,9 @@ export function useRideTracker(activeMotor: any) {
             setKmCounter(kmRef.current);
 
             // update componentsState
-            const updatedComponents = componentsRef.current.map(c => ({
+            const updatedComponents = componentsRef.current.map((c) => ({
               ...c,
-              current_value: Math.min(c.current_value + distanceDelta, c.max_value)
+              current_value: Math.min(c.current_value + distanceDelta, c.max_value),
             }));
 
             componentsRef.current = updatedComponents;
@@ -119,24 +111,10 @@ export function useRideTracker(activeMotor: any) {
       locationSubscription.current = null;
 
       // update ride distance
-      await supabase
-        .from("rides")
-        .update({ distance: kmRef.current })
-        .eq("id", rideId);
+      await updateRideDistance(rideId, kmRef.current);
 
       // update semua components di DB
-      const updateResults = await Promise.all(
-        componentsRef.current.map(c =>
-          supabase
-            .from("motor_components")
-            .update({ current_value: c.current_value })
-            .eq("id", c.id)
-        )
-      );
-
-      updateResults.forEach(res => {
-        if (res.error) console.error("component update error:", res.error);
-      });
+      await updateComponentValues(componentsRef.current);
 
       setIsRiding(false);
       setRideId(null);
@@ -154,7 +132,7 @@ export function useRideTracker(activeMotor: any) {
     kmRef.current = 0;
     setKmCounter(0);
 
-    const resetComps = componentsState.map(c => {
+    const resetComps = componentsState.map((c) => {
       if (!ids || ids.includes(c.id)) {
         return { ...c, current_value: 0 };
       }
@@ -178,6 +156,6 @@ export function useRideTracker(activeMotor: any) {
     stopRide,
     setComponentsState,
     resetComponents,
-    reloadComponents
+    reloadComponents,
   };
 }

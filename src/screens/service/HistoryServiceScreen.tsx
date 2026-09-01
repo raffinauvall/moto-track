@@ -8,7 +8,7 @@ import {
 import { ChevronRight, Droplet, Wrench } from "lucide-react-native";
 import { useState, useCallback } from "react";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { GetService } from "@/api/service/getService";
+import { getService } from "@/api/service/getService";
 
 export default function HistoryMotorScreen() {
   const navigation = useNavigation<any>();
@@ -18,7 +18,7 @@ export default function HistoryMotorScreen() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const data = await GetService();
+      const data = await getService();
       setHistory(data);
     } catch (error) {
       console.error("Error fetching history:", error);

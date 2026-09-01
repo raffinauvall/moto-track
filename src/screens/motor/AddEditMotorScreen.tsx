@@ -7,8 +7,8 @@ import {
 } from "react-native";
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { AddMotor } from "@/api/motor/addMotor";
-import { UpdateMotor } from "@/api/motor/updateMotor";
+import { addMotor } from "@/api/motor/addMotor";
+import { updateMotor } from "@/api/motor/updateMotor";
 import { getMotorModels } from "@/api/motor/getMotorModels";
 
 export default function AddEditMotorScreen({ navigation, route }: any) {
@@ -50,9 +50,9 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
 
     try {
       if (isEdit) {
-        await UpdateMotor(motor.id, selected.name, selected.brand);
+        await updateMotor(motor.id, selected.name, selected.brand);
       } else {
-        await AddMotor(selected.name, selected.brand);
+        await addMotor(selected.name, selected.brand);
       }
 
       navigation.goBack();

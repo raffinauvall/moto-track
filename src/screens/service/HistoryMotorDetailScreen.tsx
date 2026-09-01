@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { useServiceDetails } from "@/hooks/service/useDetailServiceHistory";
+import { useServiceDetails } from "@/hooks/service/useServiceDetails";
 import { ChevronLeft } from "lucide-react-native";
 
 export default function HistoryMotorDetailScreen({ route }: any) {

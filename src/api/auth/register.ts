@@ -1,14 +1,15 @@
 import { supabase } from "../supabaseClient";
+import type { AppUser } from "@/types";
 
 export async function register(name: string, email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name }
-    }
+      data: { name },
+    },
   });
 
   if (error) throw error;
-  return data; 
+  return data.user as AppUser | null;
 }

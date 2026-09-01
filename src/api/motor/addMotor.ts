@@ -1,11 +1,12 @@
 import { supabase } from "../supabaseClient";
+import type { Motor } from "@/types";
 
 const defaultComponents = [
   { name: "Oil", current_value: 0, max_value: 2000, is_pinned: true },
-  { name: "Spark Plug", current_value: 0, max_value: 8000 , is_pinned: true},
+  { name: "Spark Plug", current_value: 0, max_value: 8000, is_pinned: true },
 ];
 
-export async function AddMotor(name: string, brand: string) {
+export async function addMotor(name: string, brand: string) {
   // ambil user
   const {
     data: { user },
@@ -25,12 +26,12 @@ export async function AddMotor(name: string, brand: string) {
   const { error: compError } = await supabase
     .from("motor_components")
     .insert(
-      defaultComponents.map(c => ({
+      defaultComponents.map((c) => ({
         motor_id: motor.id,
         name: c.name,
         current_value: c.current_value,
         max_value: c.max_value,
-        is_pinned: c.is_pinned
+        is_pinned: c.is_pinned,
       }))
     );
 
@@ -39,5 +40,5 @@ export async function AddMotor(name: string, brand: string) {
     throw compError;
   }
 
-  return motor;
+  return motor as Motor;
 }
