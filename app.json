@@ -18,7 +18,14 @@
     },
     "plugins": [
       "expo-font",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-notifications",
+      [
+        "react-native-maps",
+        {
+          "provider": "google"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true

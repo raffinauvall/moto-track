@@ -1,14 +1,14 @@
-import { View } from "react-native";
-import CircularWidget from "./CircularStats";
-import { Droplet, Zap, Wrench } from "lucide-react-native";
-import { useEffect, useState, useCallback } from "react";
-import { getPinnedComponents } from "@/api/motorComponent/getPinnedComponents";
-import type { Motor, MotorComponent } from "@/types";
+import { View } from 'react-native';
+import CircularWidget from './CircularStats';
+import { Droplet, Zap, Wrench } from 'lucide-react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { getPinnedComponents } from '@/api/motorComponent/getPinnedComponents';
+import type { Motor, MotorComponent } from '@/types';
 
 const COMPONENT_ICONS: Record<string, any> = {
   Oil: Droplet,
   Oli: Droplet,
-  "Spark Plug": Zap,
+  'Spark Plug': Zap,
   Busi: Zap,
 };
 
@@ -31,7 +31,7 @@ export default function PinnedComponents({
       const data = await getPinnedComponents(activeMotor.id);
       setPinnedComponents(data);
     } catch (error) {
-      console.error("Error fetching pinned components:", error);
+      console.error('Error fetching pinned components:', error);
     }
   }, [activeMotor]);
 
@@ -44,12 +44,11 @@ export default function PinnedComponents({
   return (
     <View
       style={{
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         marginTop: 15,
-      }}
-    >
+      }}>
       {pinnedComponents.map((comp) => {
         const liveComp = componentsState.find((c) => c.id === comp.id);
 
@@ -60,8 +59,7 @@ export default function PinnedComponents({
         /* 🔥 SAMA PERSIS KAYAK DETAIL */
         const ratio = 1 - current / max;
 
-        const color =
-          ratio >= 0.8 ? "#22C55E" : ratio >= 0.5 ? "#FACC15" : "#EF4444";
+        const color = ratio >= 0.8 ? '#22C55E' : ratio >= 0.5 ? '#FACC15' : '#EF4444';
 
         const Icon = COMPONENT_ICONS[comp.name] || Wrench;
 
@@ -69,9 +67,8 @@ export default function PinnedComponents({
           <View
             key={comp.id}
             style={{
-              width: "48%",
-            }}
-          >
+              width: '48%',
+            }}>
             <CircularWidget
               current={current}
               max={max}

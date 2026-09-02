@@ -1,11 +1,11 @@
-import { supabase } from "../supabaseClient";
-import type { Ride } from "@/types";
+import { supabase } from '../supabaseClient';
+import type { Ride } from '@/types';
 
-export async function updateRideDistance(rideId: string, distance: number) {
+export async function updateRide(rideId: string, distance: number, duration: number) {
   const { data, error } = await supabase
-    .from("rides")
-    .update({ distance })
-    .eq("id", rideId)
+    .from('rides')
+    .update({ distance, end_time: new Date().toISOString(), duration })
+    .eq('id', rideId)
     .select()
     .single();
 

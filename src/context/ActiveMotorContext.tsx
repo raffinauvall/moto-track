@@ -1,6 +1,6 @@
-import React, { createContext, useState, useContext, useCallback } from "react";
-import { getActiveMotor } from "@/api/motor/getActiveMotor";
-import type { Motor } from "@/types";
+import React, { createContext, useState, useContext, useCallback } from 'react';
+import { getActiveMotor } from '@/api/motor/getActiveMotor';
+import type { Motor } from '@/types';
 
 type ActiveMotorContextType = {
   activeMotor: Motor | null;
@@ -14,9 +14,7 @@ const ActiveMotorContext = createContext<ActiveMotorContextType>({
   refreshActiveMotor: async () => {},
 });
 
-export const ActiveMotorProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ActiveMotorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeMotor, setActiveMotorState] = useState<Motor | null>(null);
 
   const refreshActiveMotor = useCallback(async () => {
@@ -33,9 +31,7 @@ export const ActiveMotorProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [refreshActiveMotor]);
 
   return (
-    <ActiveMotorContext.Provider
-      value={{ activeMotor, setActiveMotorState, refreshActiveMotor }}
-    >
+    <ActiveMotorContext.Provider value={{ activeMotor, setActiveMotorState, refreshActiveMotor }}>
       {children}
     </ActiveMotorContext.Provider>
   );

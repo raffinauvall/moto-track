@@ -1,18 +1,21 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import BottomTabNavigator from "./BottomTabNavigator";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import BottomTabNavigator from './BottomTabNavigator';
 
-import WelcomeScreen from "../screens/auth/WelcomeScreen";
-import LoginScreen from "../screens/auth/LoginScreen";
-import RegisterScreen from "../screens/auth/RegisterScreen";
+import WelcomeScreen from '../screens/auth/WelcomeScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
+import RegisterScreen from '../screens/auth/RegisterScreen';
 
-import MotorDetailScreen from "../screens/motor/MotorDetailScreen";
-import AddEditMotorScreen from "../screens/motor/AddEditMotorScreen";
-import AddComponentScreen from "@/screens/motor/AddComponentScreen";
-import EditComponentScreen from "@/screens/motor/EditComponentScreen";
+import MotorDetailScreen from '../screens/motor/MotorDetailScreen';
+import AddEditMotorScreen from '../screens/motor/AddEditMotorScreen';
+import AddComponentScreen from '@/screens/motor/AddComponentScreen';
+import EditComponentScreen from '@/screens/motor/EditComponentScreen';
 
-import ServiceMotorScreen from "../screens/service/ServiceMotorScreen";
-import HistoryMotorScreen from "../screens/service/HistoryServiceScreen";
-import HistoryMotorDetailScreen from "../screens/service/HistoryMotorDetailScreen";
+import ServiceMotorScreen from '../screens/service/ServiceMotorScreen';
+import HistoryMotorScreen from '../screens/service/HistoryServiceScreen';
+import HistoryMotorDetailScreen from '../screens/service/HistoryMotorDetailScreen';
+import RideHistoryScreen from '../screens/ride/RideHistoryScreen';
+import RideDetailScreen from '../screens/ride/RideDetailScreen';
+import ReminderScreen from '../screens/reminder/ReminderScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +38,9 @@ export default function AppNavigator({ user }: { user: any }) {
           <Stack.Screen name="ServiceMotor" component={ServiceMotorScreen} />
           <Stack.Screen name="HistoryMotor" component={HistoryMotorScreen} />
           <Stack.Screen name="HistoryMotorDetail" component={HistoryMotorDetailScreen} />
+          <Stack.Screen name="RideHistory" component={RideHistoryScreen} />
+          <Stack.Screen name="RideDetail" component={RideDetailScreen} />
+          <Stack.Screen name="Reminder" component={ReminderScreen} />
         </>
       )}
     </Stack.Navigator>

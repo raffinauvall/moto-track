@@ -1,5 +1,6 @@
-import { supabase } from "../supabaseClient";
-import type { MotorComponent } from "@/types";
+import { supabase } from '../supabaseClient';
+import { cancelAllReminders } from '@/utils/notifications';
+import type { MotorComponent } from '@/types';
 
 type CreateServicePayload = {
   motorId: string;
@@ -15,7 +16,7 @@ export async function createService({
   components,
 }: CreateServicePayload) {
   const { data: history, error: historyError } = await supabase
-    .from("service_history")
+    .from('service_history')
     .insert({
       motor_id: motorId,
       motor_name: motorName,
@@ -27,7 +28,7 @@ export async function createService({
 
   if (historyError) throw historyError;
 
-  const { error: detailError } = await supabase.from("motor_services").insert(
+  const { error: detailError } = await supabase.from('motor_services').insert(
     components.map((c) => ({
       motor_id: motorId,
       service_history_id: history.id,
@@ -40,12 +41,15 @@ export async function createService({
   if (detailError) throw detailError;
 
   await supabase
-    .from("motor_components")
+    .from('motor_components')
     .update({ current_value: 0 })
     .in(
-      "id",
+      'id',
       components.map((c) => c.id)
     );
+
+  // komponen udah di-reset, cancel reminder yang pending
+  await cancelAllReminders();
 
   return history;
 }

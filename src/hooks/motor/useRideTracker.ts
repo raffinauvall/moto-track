@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import * as Location from "expo-location";
-import { getComponents } from "@/api/motorComponent/getComponents";
-import { updateComponentValues } from "@/api/motorComponent/updateComponentValues";
-import { startRide as apiStartRide, updateRideDistance } from "@/api";
-import { getDistanceFromLatLonInKm, requestLocationPermission } from "@/utils/location";
-import type { Motor, MotorComponent } from "@/types";
+import { useState, useRef, useEffect, useCallback } from 'react';
+import * as Location from 'expo-location';
+import { getComponents } from '@/api/motorComponent/getComponents';
+import { updateComponentValues } from '@/api/motorComponent/updateComponentValues';
+import { startRide as apiStartRide, updateRide, insertRidePoints } from '@/api';
+import { getDistanceFromLatLonInKm, requestLocationPermission } from '@/utils/location';
+import { requestNotificationPermission, scheduleServiceReminder } from '@/utils/notifications';
+import type { Motor, MotorComponent } from '@/types';
+import type { RidePoint } from '@/api/ride/ridePoints';
 
 export function useRideTracker(activeMotor: Motor | null) {
   const [isRiding, setIsRiding] = useState(false);
@@ -16,35 +18,36 @@ export function useRideTracker(activeMotor: Motor | null) {
   const lastPosition = useRef<{ latitude: number; longitude: number } | null>(null);
   const kmRef = useRef<number>(0);
   const componentsRef = useRef<MotorComponent[]>([]);
+  const startTimeRef = useRef<number | null>(null);
+  const pointsRef = useRef<RidePoint[]>([]);
 
-  /* ================= FETCH COMPONENTS ================= */
-  const fetchComponents = useCallback(async (force = false) => {
-    // skip fetch kalau lagi riding kecuali force=true
-    if (!activeMotor || (isRiding && !force)) return;
+  const fetchComponents = useCallback(
+    async (force = false) => {
+      if (!activeMotor || (isRiding && !force)) return;
 
-    const formatted = await getComponents(activeMotor.id).catch((error) => {
-      console.error("fetchComponents error:", error);
-      return [] as MotorComponent[];
-    });
+      const formatted = await getComponents(activeMotor.id).catch((error) => {
+        console.error('fetchComponents error:', error);
+        return [] as MotorComponent[];
+      });
 
-    const parsed = formatted.map((c) => ({
-      ...c,
-      current_value: Number(c.current_value),
-      max_value: Number(c.max_value),
-    }));
+      const parsed = formatted.map((c) => ({
+        ...c,
+        current_value: Number(c.current_value),
+        max_value: Number(c.max_value),
+      }));
 
-    // update state hanya kalau ga lagi riding
-    if (!isRiding) {
-      setComponentsState(parsed);
-      componentsRef.current = parsed;
-    }
-  }, [activeMotor, isRiding]);
+      // update state hanya kalau ga lagi riding
+      if (!isRiding) {
+        setComponentsState(parsed);
+        componentsRef.current = parsed;
+      }
+    },
+    [activeMotor, isRiding]
+  );
 
   useEffect(() => {
     fetchComponents();
   }, [fetchComponents]);
-
-  /* ================= START RIDE ================= */
   const startRide = async () => {
     if (!activeMotor) return;
 
@@ -55,8 +58,9 @@ export function useRideTracker(activeMotor: Motor | null) {
       setIsRiding(true);
       setKmCounter(0);
       kmRef.current = 0;
+      startTimeRef.current = Date.now();
+      pointsRef.current = [];
 
-      // ambil komponen terbaru sebelum ride
       await fetchComponents(true);
 
       const granted = await requestLocationPermission();
@@ -95,10 +99,16 @@ export function useRideTracker(activeMotor: Motor | null) {
           }
 
           lastPosition.current = { latitude, longitude };
+
+          // kumpulin titik pergerakan buat map
+          pointsRef.current = [
+            ...pointsRef.current,
+            { latitude, longitude, recorded_at: new Date().toISOString() },
+          ];
         }
       );
     } catch (err) {
-      console.error("startRide error:", err);
+      console.error('startRide error:', err);
     }
   };
 
@@ -110,37 +120,55 @@ export function useRideTracker(activeMotor: Motor | null) {
       locationSubscription.current?.remove();
       locationSubscription.current = null;
 
-      // update ride distance
-      await updateRideDistance(rideId, kmRef.current);
+      // hitung durasi ride (detik)
+      const duration = startTimeRef.current
+        ? Math.round((Date.now() - startTimeRef.current) / 1000)
+        : 0;
+      startTimeRef.current = null;
+
+      // update ride distance + end_time + duration
+      await updateRide(rideId, kmRef.current, duration);
+
+      // simpen titik GPS buat map di ride history (jangan block kalau tabel belum ada)
+      try {
+        await insertRidePoints(rideId, pointsRef.current);
+      } catch (err) {
+        console.warn('insertRidePoints skipped:', err);
+      }
+      pointsRef.current = [];
 
       // update semua components di DB
       await updateComponentValues(componentsRef.current);
+
+      // schedule reminder buat komponen yang udah ≥80% dari limit
+      const nearLimit = componentsRef.current.filter(
+        (c) => c.max_value > 0 && c.current_value / c.max_value >= 0.8
+      );
+
+      if (nearLimit.length > 0) {
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          for (const comp of nearLimit) {
+            await scheduleServiceReminder({
+              title: `${comp.name} butuh servis`,
+              body: `${comp.name} motor ${activeMotor?.name} udah ${Math.round(
+                (comp.current_value / comp.max_value) * 100
+              )}% dari batas. Yuk service sekarang!`,
+              triggerDate: new Date(Date.now() + 60 * 60 * 1000), // +1 jam
+            });
+          }
+        }
+      }
 
       setIsRiding(false);
       setRideId(null);
 
       await fetchComponents(true);
 
-      console.log("Ride stopped, DB updated ✅", kmRef.current);
+      console.log('Ride stopped, DB updated ✅', kmRef.current);
     } catch (err) {
-      console.error("stopRide error:", err);
+      console.error('stopRide error:', err);
     }
-  };
-
-  /* ================= RESET COMPONENTS ================= */
-  const resetComponents = (ids?: string[]) => {
-    kmRef.current = 0;
-    setKmCounter(0);
-
-    const resetComps = componentsState.map((c) => {
-      if (!ids || ids.includes(c.id)) {
-        return { ...c, current_value: 0 };
-      }
-      return c;
-    });
-
-    componentsRef.current = resetComps;
-    setComponentsState(resetComps);
   };
 
   /* ================= RELOAD COMPONENTS ================= */
@@ -155,7 +183,6 @@ export function useRideTracker(activeMotor: Motor | null) {
     startRide,
     stopRide,
     setComponentsState,
-    resetComponents,
     reloadComponents,
   };
 }

@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import { getServiceDetails } from "@/api/service/getServiceDetails";
-import type { ServiceDetail } from "@/types";
+import { useState, useCallback } from 'react';
+import { getServiceDetails } from '@/api/service/getServiceDetails';
+import type { ServiceDetail } from '@/types';
 
 export function useServiceDetails(historyId: string) {
   const [details, setDetails] = useState<ServiceDetail[]>([]);
@@ -12,7 +12,7 @@ export function useServiceDetails(historyId: string) {
       const data = await getServiceDetails(historyId);
       setDetails(data);
     } catch (error) {
-      console.error("Error fetching service details:", error);
+      console.error('Error fetching service details:', error);
       setDetails([]);
     }
     setLoading(false);

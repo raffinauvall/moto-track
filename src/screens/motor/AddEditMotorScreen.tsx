@@ -1,15 +1,9 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { ArrowLeft, ChevronDown } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { addMotor } from "@/api/motor/addMotor";
-import { updateMotor } from "@/api/motor/updateMotor";
-import { getMotorModels } from "@/api/motor/getMotorModels";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { ArrowLeft, ChevronDown, Check } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { addMotor } from '@/api/motor/addMotor';
+import { updateMotor } from '@/api/motor/updateMotor';
+import { getMotorModels } from '@/api/motor/getMotorModels';
 
 export default function AddEditMotorScreen({ navigation, route }: any) {
   const motor = route.params?.motor;
@@ -27,13 +21,11 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
         setModels(data);
 
         if (motor) {
-          const found = data.find(
-            (m: any) => m.name === motor.name && m.brand === motor.brand
-          );
+          const found = data.find((m: any) => m.name === motor.name && m.brand === motor.brand);
           if (found) setSelected(found);
         }
-      } catch (error) {
-        Alert.alert("Error", "Failed to load motor models");
+      } catch {
+        Alert.alert('Error', 'Failed to load motor models');
       }
     };
 
@@ -42,7 +34,7 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
 
   const handleSave = async () => {
     if (!selected) {
-      Alert.alert("Warning", "Please choose motor first");
+      Alert.alert('Warning', 'Please choose motor first');
       return;
     }
 
@@ -56,43 +48,43 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
       }
 
       navigation.goBack();
-    } catch (error) {
-      Alert.alert("Error", "Failed to save motor");
+    } catch {
+      Alert.alert('Error', 'Failed to save motor');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View className="flex-1 bg-[#131313] px-6 pt-14">
+    <View className="flex-1 bg-[#0A0A0A] px-6 pt-14">
       {/* HEADER */}
-      <View className="flex-row items-center mb-6">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={26} color="#fff" />
+      <View className="mb-8 flex-row items-center">
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          className="rounded-full border border-neutral-800 bg-[#161616] p-2.5">
+          <ArrowLeft size={22} color="#fff" />
         </TouchableOpacity>
-        <Text className="text-white text-xl font-maisonBold ml-4">
-          {isEdit ? "Edit Motor" : "Add Motor"}
+        <Text className="ml-4 font-maisonBold text-xl text-white">
+          {isEdit ? 'Edit Motor' : 'Add Motor'}
         </Text>
       </View>
 
       {/* LABEL */}
-      <Text className="text-neutral-400 mb-2">Motor</Text>
+      <Text className="mb-2 font-maison text-sm text-neutral-300">Motor</Text>
 
       {/* SELECT */}
       <TouchableOpacity
         onPress={() => setOpen(!open)}
-        className="bg-[#212121] rounded-xl px-4 py-4 flex-row items-center justify-between"
-      >
-        <Text className="text-white">
-          {selected
-            ? `${selected.brand} - ${selected.name}`
-            : "Choose motor"}
+        activeOpacity={0.85}
+        className="flex-row items-center justify-between rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
+        <Text className={selected ? 'font-maison text-white' : 'font-maison text-neutral-500'}>
+          {selected ? `${selected.brand} - ${selected.name}` : 'Choose motor'}
         </Text>
         <ChevronDown size={18} color="#aaa" />
       </TouchableOpacity>
 
       {open && (
-        <View className="bg-[#212121] rounded-xl mt-2 max-h-64">
+        <View className="mt-2 max-h-64 overflow-hidden rounded-2xl border border-neutral-800 bg-[#161616]">
           <ScrollView>
             {models.map((m) => (
               <TouchableOpacity
@@ -101,11 +93,12 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
                   setSelected(m);
                   setOpen(false);
                 }}
-                className="px-4 py-4 border-b border-neutral-700"
-              >
-                <Text className="text-white">
+                activeOpacity={0.7}
+                className="flex-row items-center justify-between border-b border-neutral-800 px-4 py-4">
+                <Text className="font-maison text-white">
                   {m.brand} – {m.name}
                 </Text>
+                {selected?.id === m.id && <Check size={18} color="#34D399" />}
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -116,12 +109,13 @@ export default function AddEditMotorScreen({ navigation, route }: any) {
       <TouchableOpacity
         onPress={handleSave}
         disabled={loading || !selected}
-        className={`py-5 rounded-3xl mt-10 ${
-          selected ? "bg-[#34D399]" : "bg-neutral-600"
-        }`}
-      >
-        <Text className="text-black font-maisonBold text-center text-lg">
-          {loading ? "Saving..." : "Save Motor"}
+        activeOpacity={0.85}
+        className={`mt-10 rounded-[24px] py-5 ${selected ? 'bg-[#34D399]' : 'bg-[#2A2A2A]'}`}>
+        <Text
+          className={`text-center font-maisonBold text-lg ${
+            selected ? 'text-[#052E2B]' : 'text-[#9CA3AF]'
+          }`}>
+          {loading ? 'Saving...' : 'Save Motor'}
         </Text>
       </TouchableOpacity>
     </View>

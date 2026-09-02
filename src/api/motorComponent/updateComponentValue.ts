@@ -1,11 +1,11 @@
-import { supabase } from "../supabaseClient";
-import type { MotorComponent } from "@/types";
+import { supabase } from '../supabaseClient';
+import type { MotorComponent } from '@/types';
 
 export async function updateComponentValue(id: string, currentValue: number) {
   const { data, error } = await supabase
-    .from("motor_components")
+    .from('motor_components')
     .update({ current_value: currentValue })
-    .eq("id", id)
+    .eq('id', id)
     .select()
     .single();
 

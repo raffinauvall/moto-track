@@ -1,11 +1,11 @@
-import { supabase } from "../supabaseClient";
-import type { MotorComponent } from "@/types";
+import { supabase } from '../supabaseClient';
+import type { MotorComponent } from '@/types';
 
 export async function getComponents(motorId: string) {
   const { data, error } = await supabase
-    .from("motor_components")
-    .select("*")
-    .eq("motor_id", motorId);
+    .from('motor_components')
+    .select('*')
+    .eq('motor_id', motorId);
 
   if (error) throw error;
 

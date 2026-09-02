@@ -1,10 +1,10 @@
-import { supabase } from "../supabaseClient";
+import { supabase } from '../supabaseClient';
 
 export async function updateMotor(id: string, name: string, brand?: string) {
   const { data, error } = await supabase
-    .from("motors")
+    .from('motors')
     .update({ name, brand })
-    .eq("id", id)
+    .eq('id', id)
     .select()
     .single();
 

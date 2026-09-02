@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Animated, Text, View, StyleSheet, Dimensions } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { Animated, Text, View, StyleSheet, Dimensions } from 'react-native';
 
 type ToastProps = {
-  type: "success" | "error";
+  type: 'success' | 'error';
   title: string;
   message?: string;
   duration?: number;
@@ -36,15 +36,14 @@ export default function CustomToast({ type, title, message, duration = 2000, onH
 
   if (!visible) return null;
 
-  const bgColor = type === "success" ? "#34D399" : "#F87171";
+  const bgColor = type === 'success' ? '#34D399' : '#F87171';
 
   return (
     <Animated.View
       style={[
         styles.container,
         { backgroundColor: bgColor, transform: [{ translateY: slideAnim }] },
-      ]}
-    >
+      ]}>
       <Text style={styles.title}>{title}</Text>
       {message && <Text style={styles.message}>{message}</Text>}
     </Animated.View>
@@ -53,30 +52,30 @@ export default function CustomToast({ type, title, message, duration = 2000, onH
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
+    position: 'absolute',
     top: 50,
-    alignSelf: "center",
+    alignSelf: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 12,
     zIndex: 1000,
-    maxWidth: Dimensions.get("window").width - 40,
-    shadowColor: "#000",
+    maxWidth: Dimensions.get('window').width - 40,
+    shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
     elevation: 5,
   },
   title: {
-    color: "#fff",
-    fontWeight: "700",
+    color: '#fff',
+    fontWeight: '700',
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
   },
   message: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 2,
   },
 });

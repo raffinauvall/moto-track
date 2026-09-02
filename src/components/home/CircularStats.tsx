@@ -1,5 +1,5 @@
-import { View, Text } from "react-native";
-import { Svg, Circle, G } from "react-native-svg";
+import { View, Text } from 'react-native';
+import { Svg, Circle, G } from 'react-native-svg';
 
 type WidgetProps = {
   current: number;
@@ -29,12 +29,13 @@ export default function CircularWidget({
   return (
     <View
       style={style} // pake style dari luar
-      className="bg-[#212121] p-4 rounded-3xl items-center mb-4"
-    >
+      className="mb-4 items-center rounded-[28px] bg-[#161616] p-4">
       {/* Header */}
-      <View className="flex-row items-center ustify-center gap-3 mb-2">
-        <Icon color={color} size={26} />
-        <Text className="text-white text-xs font-maison">{label}</Text>
+      <View className="mb-2 flex-row items-center justify-center gap-2.5">
+        <View className="rounded-xl bg-[#1E1E1E] p-2">
+          <Icon color={color} size={22} />
+        </View>
+        <Text className="font-maisonBold text-sm text-white">{label}</Text>
       </View>
 
       {/* Circle */}
@@ -45,7 +46,7 @@ export default function CircularWidget({
               cx={center}
               cy={center}
               r={radius}
-              stroke="#374151"
+              stroke="#2A2A2A"
               strokeWidth={strokeWidth}
               fill="none"
             />
@@ -65,10 +66,10 @@ export default function CircularWidget({
 
         {/* Text */}
         <View className="absolute inset-0 items-center justify-center">
-          <Text className="text-white font-bold font-maisonBold">
+          <Text className="font-maisonBold text-[22px] text-white">
             {current}/{max}
           </Text>
-          <Text className="text-neutral-400 text-xs font-maison">km</Text>
+          <Text className="font-maison text-xs text-neutral-500">km</Text>
         </View>
       </View>
     </View>

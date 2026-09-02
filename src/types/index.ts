@@ -27,9 +27,15 @@ export type Ride = {
   id: string;
   motor_id: string;
   distance: number;
-  start_time?: string;
-  end_time?: string;
-  duration?: number;
+  start_time: string;
+  end_time: string;
+  duration: number;
+};
+
+export type RidePoint = {
+  latitude: number;
+  longitude: number;
+  recorded_at: string;
 };
 
 export type ServiceHistory = {
@@ -60,7 +66,7 @@ export type AppUser = {
 };
 
 export type ToastPayload = {
-  type: "success" | "error";
+  type: 'success' | 'error';
   title: string;
   message: string;
 };

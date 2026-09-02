@@ -1,9 +1,9 @@
-import { supabase } from "../supabaseClient";
-import type { Motor } from "@/types";
+import { supabase } from '../supabaseClient';
+import type { Motor } from '@/types';
 
 const defaultComponents = [
-  { name: "Oil", current_value: 0, max_value: 2000, is_pinned: true },
-  { name: "Spark Plug", current_value: 0, max_value: 8000, is_pinned: true },
+  { name: 'Oil', current_value: 0, max_value: 2000, is_pinned: true },
+  { name: 'Spark Plug', current_value: 0, max_value: 8000, is_pinned: true },
 ];
 
 export async function addMotor(name: string, brand: string) {
@@ -11,11 +11,11 @@ export async function addMotor(name: string, brand: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not logged in");
+  if (!user) throw new Error('Not logged in');
 
   // insert motor
   const { data: motor, error } = await supabase
-    .from("motors")
+    .from('motors')
     .insert({ user_id: user.id, name, brand })
     .select()
     .single();
@@ -23,20 +23,18 @@ export async function addMotor(name: string, brand: string) {
   if (error || !motor) throw error;
 
   // insert default components
-  const { error: compError } = await supabase
-    .from("motor_components")
-    .insert(
-      defaultComponents.map((c) => ({
-        motor_id: motor.id,
-        name: c.name,
-        current_value: c.current_value,
-        max_value: c.max_value,
-        is_pinned: c.is_pinned,
-      }))
-    );
+  const { error: compError } = await supabase.from('motor_components').insert(
+    defaultComponents.map((c) => ({
+      motor_id: motor.id,
+      name: c.name,
+      current_value: c.current_value,
+      max_value: c.max_value,
+      is_pinned: c.is_pinned,
+    }))
+  );
 
   if (compError) {
-    console.error("Component insert failed:", compError);
+    console.error('Component insert failed:', compError);
     throw compError;
   }
 
