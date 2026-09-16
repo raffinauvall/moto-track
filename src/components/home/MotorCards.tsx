@@ -4,43 +4,74 @@ import MotorHealthBar from '@/components/motor/MotorHealthBar';
 
 type Props = {
   motor: string;
-  health?: number; // health bisa dikirim
-  onChangeMotor?: () => void; // tombol Change muncul jika function dikirim
+  health?: number;
+  onChangeMotor?: () => void;
 };
 
 export default function MotorCard({ motor, health = 100, onChangeMotor }: Props) {
-  return (
-    <View className="mb-6 overflow-hidden rounded-[28px] bg-[#161616] p-6">
-      {/* soft glow accent */}
-      <View className="absolute -right-10 -top-16 h-44 w-44 rounded-full bg-[#34D399] opacity-10" />
+  const healthColor = health >= 70 ? '#22C55E' : health >= 40 ? '#FACC15' : '#EF4444';
 
-      {/* Header */}
-      <View className="mb-3 flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2.5">
-          <View className="rounded-xl bg-[#34D399]/15 p-2.5">
-            <Motorbike color="#34D399" size={20} />
+  return (
+    <View
+      className="mb-5 rounded-2xl border border-[#1F3354] bg-[#0D1728]"
+      style={{ borderTopColor: healthColor }}>
+      <View style={{ padding: 18 }}>
+        {/* Header row */}
+        <View className="mb-4 flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2.5">
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                backgroundColor: '#22D3EE12',
+                borderWidth: 1,
+                borderColor: '#22D3EE20',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Motorbike color="#22D3EE" size={18} />
+            </View>
+            <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 12, color: '#64748B' }}>
+              Active motor
+            </Text>
           </View>
-          <Text className="font-maison text-sm text-neutral-400">Active Motor</Text>
+
+          {onChangeMotor && (
+            <TouchableOpacity
+              onPress={onChangeMotor}
+              activeOpacity={0.7}
+              style={{
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: '#22D3EE30',
+                backgroundColor: '#22D3EE0D',
+                paddingHorizontal: 12,
+                paddingVertical: 5,
+              }}>
+              <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 11, color: '#22D3EE' }}>
+                Switch
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Tombol Change hanya muncul kalau ada function */}
-        {onChangeMotor && (
-          <TouchableOpacity
-            onPress={onChangeMotor}
-            activeOpacity={0.7}
-            className="rounded-full border border-neutral-700 px-3.5 py-1.5">
-            <Text className="font-maisonBold text-xs text-[#34D399]">Change</Text>
-          </TouchableOpacity>
-        )}
+        {/* Motor name */}
+        <Text
+          style={{
+            fontFamily: 'MaisonNeue-Bold',
+            fontSize: 24,
+            lineHeight: 30,
+            color: '#fff',
+            marginBottom: 4,
+          }}
+          numberOfLines={1}>
+          {motor || 'No Active Motor'}
+        </Text>
+
+        {/* Health bar */}
+        <MotorHealthBar value={health} />
       </View>
-
-      {/* Nama Motor */}
-      <Text className="mb-1 font-maisonBold text-[26px] leading-8 text-white" numberOfLines={1}>
-        {motor || 'No Active Motor'}
-      </Text>
-
-      {/* Health Bar */}
-      <MotorHealthBar value={health} />
     </View>
   );
 }

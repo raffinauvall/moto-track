@@ -6,30 +6,35 @@ type MotorHealthBarProps = {
 
 export default function MotorHealthBar({ value }: MotorHealthBarProps) {
   const getColor = () => {
-    if (value >= 80) return '#22C55E';
-    if (value >= 50) return '#FACC15';
+    if (value >= 70) return '#22C55E';
+    if (value >= 40) return '#FACC15';
     return '#EF4444';
   };
 
+  const color = getColor();
+
   return (
-    <View className="w-full pt-6">
-      <View className="mb-2 flex-row items-center justify-between">
-        <Text className="font-maison text-sm text-neutral-300">Motor Health</Text>
-        <View className="flex-row items-center gap-1.5">
-          <View className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: getColor() }} />
-          <Text className="font-maisonBold text-sm" style={{ color: getColor() }}>
-            {value}%
-          </Text>
-        </View>
+    <View style={{ width: '100%', paddingTop: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 12, color: '#64748B' }}>
+          Motor Health
+        </Text>
+        <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 13, color }}>
+          {value}%
+        </Text>
       </View>
 
-      <View className="h-2.5 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
+      {/* Track */}
+      <View style={{ height: 6, width: '100%', backgroundColor: '#0A1929', borderRadius: 3, overflow: 'hidden' }}>
+        {/* Fill */}
         <View
           style={{
             width: `${value}%`,
-            backgroundColor: getColor(),
+            height: '100%',
+            backgroundColor: color,
+            borderRadius: 3,
+            opacity: 0.9,
           }}
-          className="h-full rounded-full"
         />
       </View>
     </View>

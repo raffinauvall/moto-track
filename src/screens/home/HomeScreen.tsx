@@ -7,8 +7,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { getCurrentUser } from '@/api';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useRideTracker } from '@/hooks/motor/useRideTracker';
-import { calculateHealth, getStatus } from '@/utils/health';
-import { ChevronRight, History, Navigation2 } from 'lucide-react-native';
+import { calculateHealth } from '@/utils/health';
+import { ChevronRight, History, Navigation2, Square } from 'lucide-react-native';
 
 type HomeScreenProps = { setIndex: (i: number) => void };
 
@@ -35,12 +35,11 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
     useCallback(() => {
       refreshActiveMotor();
       reloadComponents?.();
-    }, [activeMotor])
+    }, [refreshActiveMotor, reloadComponents])
   );
 
   /* ================= HEALTH ================= */
   const health = calculateHealth(componentsState);
-  const status = getStatus(health);
   const dueCount = componentsState.filter(
     (c) => c.max_value > 0 && c.current_value / c.max_value >= 0.8
   ).length;
@@ -58,15 +57,15 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
         flexGrow: 1,
         padding: 24,
         paddingBottom: 140,
-        backgroundColor: '#0A0A0A',
+        backgroundColor: '#050B18',
       }}
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#34D399"
-          colors={['#34D399']}
+          tintColor="#22D3EE"
+          colors={['#22D3EE']}
         />
       }>
       <Header
@@ -81,55 +80,112 @@ export default function HomeScreen({ setIndex }: HomeScreenProps) {
         onChangeMotor={() => setIndex(1)}
       />
 
-      {/* Status pill */}
-      <View className="mb-1 mt-1 flex-row items-center gap-2.5 self-start rounded-full border border-neutral-800 bg-[#161616] px-4 py-2.5">
-        <View className="h-2 w-2 rounded-full" style={{ backgroundColor: status.color }} />
-        <Text className="font-maisonBold text-sm" style={{ color: status.color }}>
-          {status.label}
-        </Text>
-        <Text className="font-maison text-xs text-neutral-500">• {status.note}</Text>
+      {/* Summary */}
+      <View className="mb-5 flex-row items-center rounded-2xl border border-[#1F3354] bg-[#0D1728] px-4 py-3.5">
+        <View className="flex-1">
+          <Text className="font-maisonBold text-xl text-white">
+            {health}
+            <Text className="text-sm text-slate-500">%</Text>
+          </Text>
+          <Text className="mt-0.5 font-maison text-xs text-slate-500">Motor health</Text>
+        </View>
+        <View className="h-8 w-px bg-[#1F3354]" />
+        <View className="flex-1 items-center">
+          <Text className="font-maisonBold text-xl text-white">{dueCount}</Text>
+          <Text className="mt-0.5 font-maison text-xs text-slate-500">Due soon</Text>
+        </View>
+        <View className="h-8 w-px bg-[#1F3354]" />
+        <View className="flex-1 items-end">
+          <Text className="font-maisonBold text-xl text-white">{kmCounter.toFixed(1)}</Text>
+          <Text className="mt-0.5 font-maison text-xs text-slate-500">Trip km</Text>
+        </View>
       </View>
 
       <PinnedComponents activeMotor={activeMotor} componentsState={componentsState} />
 
       {/* Ride control */}
-      <TouchableOpacity
-        activeOpacity={0.85}
-        disabled={!activeMotor}
-        onPress={isRiding ? stopRide : startRide}
-        className={`mt-4 flex-row items-center justify-center gap-2.5 rounded-[20px] py-4 ${
-          isRiding ? 'bg-[#EF4444]' : activeMotor ? 'bg-[#34D399] shadow-glow' : 'bg-[#2A2A2A]'
-        }`}>
-        <Navigation2 size={18} color={isRiding ? '#fff' : activeMotor ? '#052E2B' : '#9CA3AF'} />
-        <Text
-          className="font-maisonBold text-base"
+      {isRiding ? (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={stopRide}
           style={{
-            color: isRiding ? '#fff' : activeMotor ? '#052E2B' : '#9CA3AF',
+            marginTop: 16,
+            borderRadius: 20,
+            backgroundColor: '#0D1728',
+            borderWidth: 1,
+            borderColor: '#EF444450',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 14,
+            paddingHorizontal: 20,
           }}>
-          {isRiding ? `Stop • ${kmCounter.toFixed(2)} km` : 'Start Tracking'}
-        </Text>
-      </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {/* Pulsing dot */}
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444' }} />
+            <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 15, color: '#fff' }}>
+              Riding
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 20, color: '#22D3EE' }}>
+              {kmCounter.toFixed(2)} km
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                backgroundColor: '#EF4444',
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderRadius: 999,
+              }}>
+              <Square size={12} color="#fff" fill="#fff" />
+              <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 13, color: '#fff' }}>
+                Stop
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          disabled={!activeMotor}
+          onPress={startRide}
+          className={`mt-4 flex-row items-center justify-center gap-2.5 rounded-[20px] py-[18px] ${
+            activeMotor ? 'bg-cyan-400' : 'bg-[#0D1728]'
+          }`}
+          style={!activeMotor ? { borderWidth: 1, borderColor: '#1F3354' } : {}}>
+          <Navigation2 size={18} color={activeMotor ? '#042F3A' : '#475569'} />
+          <Text
+            className="font-maisonBold text-base"
+            style={{ color: activeMotor ? '#042F3A' : '#475569' }}>
+            Start Tracking
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Ride history */}
       <TouchableOpacity
         activeOpacity={0.85}
         disabled={!activeMotor}
         onPress={() => navigation.navigate('RideHistory')}
-        className="mt-3 flex-row items-center justify-between rounded-[20px] border border-neutral-800 bg-[#161616] px-5 py-4">
+        className="mt-3 flex-row items-center justify-between rounded-[20px] border border-[#1F3354] bg-[#0D1728] px-5 py-4">
         <View className="flex-row items-center gap-3">
-          <View className="rounded-xl bg-[#34D399]/10 p-2.5">
-            <History size={18} color={activeMotor ? '#34D399' : '#9CA3AF'} />
+          <View className="h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10">
+            <History size={18} color={activeMotor ? '#22D3EE' : '#64748B'} />
           </View>
           <View>
             <Text
-              className="font-maisonBold text-base"
-              style={{ color: activeMotor ? '#FAFAFA' : '#9CA3AF' }}>
+              className="font-maisonBold text-sm"
+              style={{ color: activeMotor ? '#fff' : '#64748B' }}>
               Ride History
             </Text>
-            <Text className="font-maison text-xs text-neutral-500">Lihat riwayat perjalanan</Text>
+            <Text className="font-maison text-xs text-slate-500">Lihat riwayat perjalanan</Text>
           </View>
         </View>
-        <ChevronRight size={20} color="#525252" />
+        <ChevronRight size={18} color="#374151" />
       </TouchableOpacity>
     </ScrollView>
   );

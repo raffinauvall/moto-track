@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { User, Mail, Lock, Bike } from 'lucide-react-native';
+import { Bike, User, Mail, Lock } from 'lucide-react-native';
 import { register } from '@/api/auth/register';
 
 export default function RegisterScreen({ navigation }: any) {
@@ -19,28 +19,28 @@ export default function RegisterScreen({ navigation }: any) {
   };
 
   return (
-    <View className="h-screen justify-center bg-[#0A0A0A] px-7">
+    <View className="flex-1 bg-[#050B18] px-6 pb-10 pt-16">
       {/* Logo + Header */}
       <View className="mb-10 items-start">
-        <View className="mb-6 h-16 w-16 items-center justify-center rounded-[20px] bg-[#34D399]/10">
-          <Bike size={32} color="#34D399" />
+        <View className="mb-6 h-14 w-14 items-center justify-center rounded-2xl border border-[#1F3354] bg-[#0D1728]">
+          <Bike size={28} color="#22D3EE" strokeWidth={1.8} />
         </View>
-        <Text className="font-maisonBold text-4xl tracking-wide text-white">Buat Akun Baru</Text>
-        <Text className="mt-2 font-maison text-base text-neutral-500">
-          Daftar untuk mulai menggunakan Moto Tracker
+        <Text className="font-maisonBold text-4xl leading-[44px] text-white">Create account</Text>
+        <Text className="mt-2 font-maison text-base text-slate-400">
+          Mulai tracking motor dengan dashboard baru.
         </Text>
       </View>
 
       {/* Form */}
-      <View className="space-y-6">
+      <View className="rounded-[28px] border border-[#1F3354] bg-[#0D1728] p-5">
         {/* Nama */}
-        <View>
-          <Text className="mb-2 font-maison text-sm text-neutral-300">Nama Lengkap</Text>
-          <View className="flex-row items-center rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
-            <User size={20} color="#a3a3a3" />
+        <View className="mb-5">
+          <Text className="mb-2 font-maison text-sm text-slate-300">Nama Lengkap</Text>
+          <View className="flex-row items-center rounded-2xl border border-[#1F3354] bg-[#050B18] px-4 py-4">
+            <User size={20} color="#64748B" />
             <TextInput
               placeholder="Nama lengkap"
-              placeholderTextColor="#737373"
+              placeholderTextColor="#475569"
               className="ml-3 flex-1 font-maison text-base text-white"
               value={name}
               onChangeText={setName}
@@ -49,13 +49,13 @@ export default function RegisterScreen({ navigation }: any) {
         </View>
 
         {/* Email */}
-        <View>
-          <Text className="mb-2 font-maison text-sm text-neutral-300">Email</Text>
-          <View className="flex-row items-center rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
-            <Mail size={20} color="#a3a3a3" />
+        <View className="mb-5">
+          <Text className="mb-2 font-maison text-sm text-slate-300">Email</Text>
+          <View className="flex-row items-center rounded-2xl border border-[#1F3354] bg-[#050B18] px-4 py-4">
+            <Mail size={20} color="#64748B" />
             <TextInput
               placeholder="email@example.com"
-              placeholderTextColor="#737373"
+              placeholderTextColor="#475569"
               className="ml-3 flex-1 font-maison text-base text-white"
               value={email}
               onChangeText={setEmail}
@@ -67,12 +67,12 @@ export default function RegisterScreen({ navigation }: any) {
 
         {/* Password */}
         <View>
-          <Text className="mb-2 font-maison text-sm text-neutral-300">Password</Text>
-          <View className="flex-row items-center rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
-            <Lock size={20} color="#a3a3a3" />
+          <Text className="mb-2 font-maison text-sm text-slate-300">Password</Text>
+          <View className="flex-row items-center rounded-2xl border border-[#1F3354] bg-[#050B18] px-4 py-4">
+            <Lock size={20} color="#64748B" />
             <TextInput
               placeholder="••••••••"
-              placeholderTextColor="#737373"
+              placeholderTextColor="#475569"
               secureTextEntry
               className="ml-3 flex-1 font-maison text-base text-white"
               value={password}
@@ -84,21 +84,21 @@ export default function RegisterScreen({ navigation }: any) {
 
       {/* Register Button */}
       <TouchableOpacity
-        className="mt-8 rounded-[20px] bg-[#34D399] py-4"
+        className="mt-8 rounded-[22px] bg-cyan-400 py-5"
         activeOpacity={0.85}
         onPress={handleRegister}>
-        <Text className="text-center font-maisonBold text-lg text-[#052E2B]">Register</Text>
+        <Text className="text-center font-maisonBold text-lg text-[#042F3A]">Register</Text>
       </TouchableOpacity>
 
       {/* Footer */}
       <View className="mt-6 flex-row justify-center">
-        <Text className="font-maison text-base text-neutral-500">Sudah punya akun?</Text>
+        <Text className="font-maison text-base text-slate-500">Sudah punya akun?</Text>
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}>
-          <Text className="ml-2 font-maisonBold text-[#34D399]">Login</Text>
+          <Text className="ml-2 font-maisonBold text-cyan-300">Login</Text>
         </TouchableOpacity>
       </View>
     </View>

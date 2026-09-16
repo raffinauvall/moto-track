@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Dimensions, TouchableOpacity, Text } from 'react-native';
 import { TabView } from 'react-native-tab-view';
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated';
-import { Home, Bike, Clock, User } from 'lucide-react-native';
+import { Gauge, Bike, Wrench, UserRound } from 'lucide-react-native';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import MotorScreen from '@/screens/motor/MotorScreen';
@@ -17,21 +17,14 @@ type TabRoute = {
   icon: React.FC<{ color: string; size: number }>;
 };
 
-const TAB_LABELS: Record<string, string> = {
-  home: 'Home',
-  motor: 'Motor',
-  service: 'Service',
-  profile: 'Profil',
-};
-
 type AnimatedTabIconProps = {
   focused: boolean;
   Icon: React.FC<{ color: string; size: number }>;
 };
 
 const AnimatedTabIcon: React.FC<AnimatedTabIconProps> = ({ focused, Icon }) => {
-  const scale = useSharedValue(focused ? 1.2 : 1);
-  scale.value = withSpring(focused ? 1.2 : 1);
+  const scale = useSharedValue(focused ? 1.08 : 1);
+  scale.value = withSpring(focused ? 1.08 : 1);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -39,7 +32,7 @@ const AnimatedTabIcon: React.FC<AnimatedTabIconProps> = ({ focused, Icon }) => {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Icon color={focused ? '#34D399' : '#9CA3AF'} size={26} />
+      <Icon color={focused ? '#042F3A' : '#64748B'} size={23} />
     </Animated.View>
   );
 };
@@ -47,10 +40,10 @@ const AnimatedTabIcon: React.FC<AnimatedTabIconProps> = ({ focused, Icon }) => {
 export default function AnimatedBottomTab() {
   const [index, setIndex] = useState(0);
   const [routes] = useState<TabRoute[]>([
-    { key: 'home', label: 'Home', icon: Home },
+    { key: 'home', label: 'Home', icon: Gauge },
     { key: 'motor', label: 'Motor', icon: Bike },
-    { key: 'service', label: 'Service', icon: Clock },
-    { key: 'profile', label: 'Profil', icon: User },
+    { key: 'service', label: 'Service', icon: Wrench },
+    { key: 'profile', label: 'Profil', icon: UserRound },
   ]);
 
   // ✅ renderScene manual supaya bisa pass prop
@@ -70,7 +63,7 @@ export default function AnimatedBottomTab() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: '#050B18' }}>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -84,21 +77,22 @@ export default function AnimatedBottomTab() {
         style={{
           position: 'absolute',
           bottom: 18,
-          left: 24,
-          right: 24,
+          left: 40,
+          right: 40,
           flexDirection: 'row',
           justifyContent: 'space-around',
-          backgroundColor: '#161616',
-          borderRadius: 28,
+          backgroundColor: '#0A1525',
+          borderRadius: 999,
           borderWidth: 1,
-          borderColor: '#262626',
-          height: 68,
+          borderColor: '#1F3354',
+          height: 64,
           alignItems: 'center',
-          elevation: 12,
+          elevation: 16,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.4,
-          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.5,
+          shadowRadius: 20,
+          paddingHorizontal: 8,
         }}>
         {routes.map((route, i) => {
           const focused = index === i;
@@ -111,14 +105,29 @@ export default function AnimatedBottomTab() {
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingHorizontal: 14,
+                flex: 1,
+                height: 48,
                 gap: 2,
               }}>
-              <AnimatedTabIcon focused={focused} Icon={route.icon} />
+              <View
+                style={{
+                  width: 40,
+                  height: 32,
+                  borderRadius: 999,
+                  backgroundColor: focused ? '#22D3EE' : 'transparent',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <AnimatedTabIcon focused={focused} Icon={route.icon} />
+              </View>
               <Text
-                className="font-maison text-[10px]"
-                style={{ color: focused ? '#34D399' : '#737373' }}>
-                {TAB_LABELS[route.key]}
+                style={{
+                  fontFamily: 'MaisonNeue-Bold',
+                  fontSize: 9,
+                  color: focused ? '#22D3EE' : '#475569',
+                  letterSpacing: 0.3,
+                }}>
+                {route.label}
               </Text>
             </TouchableOpacity>
           );

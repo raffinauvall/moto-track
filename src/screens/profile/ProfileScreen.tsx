@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
-import { LogOut, Bike, Wrench, ChevronRight } from 'lucide-react-native';
+import { LogOut, Bike, Wrench, ChevronRight, Settings } from 'lucide-react-native';
 import { getMotor } from '@/api/motor/getMotor';
 import { getService } from '@/api/service/getService';
 import { getCurrentUser, signOut } from '@/api';
@@ -52,58 +52,162 @@ export default function ProfileScreen({ navigation }: any) {
 
   if (!user) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#0A0A0A]">
-        <ActivityIndicator size="large" color="#34D399" />
+      <View className="flex-1 items-center justify-center bg-[#050B18]">
+        <ActivityIndicator size="large" color="#22D3EE" />
       </View>
     );
   }
 
+  const displayName = user.user_metadata?.name || 'Rider';
+  const initials = displayName
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
-    <ScrollView className="flex-1 bg-[#0A0A0A]" showsVerticalScrollIndicator={false}>
-      <View className="items-center rounded-b-[40px] bg-[#161616] pb-10 pt-16">
-        <View className="mb-4 h-28 w-28 items-center justify-center rounded-full border-4 border-neutral-700 bg-[#1E1E1E]">
-          <Image
-            source={{ uri: `https://i.pravatar.cc/200?u=${user.id}` }}
-            className="h-24 w-24 rounded-full"
-          />
+    <ScrollView
+      className="flex-1 bg-[#050B18]"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 120 }}>
+      {/* ── HEADER ── */}
+      <View
+        style={{
+          paddingTop: 60,
+          paddingBottom: 36,
+          paddingHorizontal: 24,
+          backgroundColor: '#0D1728',
+          borderBottomWidth: 1,
+          borderBottomColor: '#1F3354',
+          overflow: 'hidden',
+        }}>
+        {/* Glow */}
+        <View
+          style={{
+            position: 'absolute', top: -40, right: -40,
+            width: 180, height: 180, borderRadius: 90,
+            backgroundColor: '#22D3EE', opacity: 0.05,
+          }}
+        />
+
+        <View style={{ alignItems: 'center' }}>
+          {/* Avatar with ring */}
+          <View
+            style={{
+              width: 96, height: 96, borderRadius: 48,
+              borderWidth: 2, borderColor: '#22D3EE40',
+              backgroundColor: '#0A1929',
+              alignItems: 'center', justifyContent: 'center',
+              marginBottom: 16,
+            }}>
+            <Image
+              source={{ uri: `https://i.pravatar.cc/200?u=${user.id}` }}
+              style={{ width: 88, height: 88, borderRadius: 44 }}
+            />
+          </View>
+
+          <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 22, color: '#fff', marginBottom: 4 }}>
+            {displayName}
+          </Text>
+          <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 13, color: '#64748B' }}>
+            {user.email}
+          </Text>
+
+          {/* Online indicator */}
+          <View
+            style={{
+              flexDirection: 'row', alignItems: 'center', gap: 5,
+              marginTop: 10,
+              backgroundColor: '#22C55E12',
+              borderWidth: 1, borderColor: '#22C55E30',
+              borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4,
+            }}>
+            <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: '#22C55E' }} />
+            <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 10, color: '#22C55E' }}>Active</Text>
+          </View>
         </View>
-
-        <Text className="font-maisonBold text-2xl text-white">
-          {user.user_metadata?.name || 'Rider'}
-        </Text>
-
-        <Text className="mt-1 font-maison text-sm text-neutral-500">{user.email}</Text>
       </View>
 
-      {/* stats */}
-      <View className="mt-8 flex-row justify-between px-6">
-        <View className="w-[48%] rounded-[24px] bg-[#161616] p-5">
-          <View className="flex-row items-center justify-between">
-            <View className="rounded-xl bg-[#22C55E]/10 p-2">
-              <Bike color="#22C55E" size={20} />
+      {/* ── STATS ── */}
+      <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 24, marginTop: 24 }}>
+        <View
+          style={{
+            flex: 1, borderRadius: 20, borderWidth: 1,
+            borderColor: '#1F3354', backgroundColor: '#0D1728', padding: 18,
+          }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View
+              style={{
+                width: 36, height: 36, borderRadius: 10,
+                backgroundColor: '#22C55E12', borderWidth: 1, borderColor: '#22C55E20',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+              <Bike color="#22C55E" size={18} />
             </View>
-            <Text className="font-maisonBold text-2xl text-emerald-400">{motorCount}</Text>
+            <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 28, color: '#fff' }}>
+              {motorCount}
+            </Text>
           </View>
-          <Text className="mt-3 font-maison text-sm text-neutral-500">Motors</Text>
+          <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 12, color: '#64748B' }}>
+            Total Motors
+          </Text>
         </View>
 
-        <View className="w-[48%] rounded-[24px] bg-[#161616] p-5">
-          <View className="flex-row items-center justify-between">
-            <View className="rounded-xl bg-[#FACC15]/10 p-2">
-              <Wrench color="#FACC15" size={20} />
+        <View
+          style={{
+            flex: 1, borderRadius: 20, borderWidth: 1,
+            borderColor: '#1F3354', backgroundColor: '#0D1728', padding: 18,
+          }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View
+              style={{
+                width: 36, height: 36, borderRadius: 10,
+                backgroundColor: '#22D3EE12', borderWidth: 1, borderColor: '#22D3EE20',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+              <Wrench color="#22D3EE" size={18} />
             </View>
-            <Text className="font-maisonBold text-2xl text-yellow-400">{serviceCount}</Text>
+            <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 28, color: '#fff' }}>
+              {serviceCount}
+            </Text>
           </View>
-          <Text className="mt-3 font-maison text-sm text-neutral-500">Services</Text>
+          <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 12, color: '#64748B' }}>
+            Services Done
+          </Text>
         </View>
       </View>
 
+      {/* ── LOGOUT ── */}
       <TouchableOpacity
         onPress={handleLogout}
-        className="mx-6 mt-8 flex-row items-center justify-center gap-2 rounded-[20px] border border-red-500/20 bg-[#1E1E1E] py-4">
-        <LogOut size={18} color="#EF4444" />
-        <Text className="font-maisonBold text-red-500">Logout</Text>
-        <ChevronRight size={16} color="#EF4444" />
+        style={{
+          marginHorizontal: 24,
+          marginTop: 32,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: '#EF444425',
+          backgroundColor: '#0D1728',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              backgroundColor: '#EF444412',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+            <LogOut size={17} color="#EF4444" />
+          </View>
+          <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 15, color: '#EF4444' }}>
+            Logout
+          </Text>
+        </View>
+        <ChevronRight size={16} color="#EF444460" />
       </TouchableOpacity>
     </ScrollView>
   );

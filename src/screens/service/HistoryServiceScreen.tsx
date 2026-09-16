@@ -1,12 +1,18 @@
 import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { ChevronRight, Droplet, Wrench } from 'lucide-react-native';
+import { ChevronRight, Wrench } from 'lucide-react-native';
 import { useState, useCallback } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getService } from '@/api/service/getService';
+import type { ServiceHistory } from '@/types';
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(
+    new Date(value)
+  );
 
 export default function HistoryMotorScreen() {
   const navigation = useNavigation<any>();
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<ServiceHistory[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
@@ -29,22 +35,30 @@ export default function HistoryMotorScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-[#0A0A0A]"
+      className="flex-1 bg-[#070B12]"
       contentContainerStyle={{ padding: 24, paddingBottom: 140 }}
       showsVerticalScrollIndicator={false}>
-      <Text className="mb-6 pt-4 font-maisonBold text-3xl text-white">History Service</Text>
+      <View className="mb-7 flex-row items-end justify-between pt-4">
+        <View>
+          <Text className="mb-1 font-maisonMono text-xs uppercase text-slate-500">Service log</Text>
+          <Text className="font-maisonBold text-3xl text-white">History service</Text>
+        </View>
+        {!loading && history.length > 0 && (
+          <Text className="font-maison text-sm text-slate-500">{history.length} records</Text>
+        )}
+      </View>
 
-      {loading && <ActivityIndicator size="large" color="#34D399" className="mt-8" />}
+      {loading && <ActivityIndicator size="small" color="#22D3EE" className="mt-8" />}
 
       {!loading && history.length === 0 && (
-        <View className="mt-20 items-center">
-          <View className="rounded-full bg-[#161616] p-6">
-            <Wrench size={40} color="#4B5563" />
+        <View className="mt-16 items-center rounded-2xl border border-[#1F3354] bg-[#0D1728] px-6 py-10">
+          <View className="h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10">
+            <Wrench size={24} color="#22D3EE" />
           </View>
-          <Text className="mt-5 text-center font-maison text-lg text-neutral-400">
-            Belum ada history service
+          <Text className="mt-4 text-center font-maisonBold text-base text-white">
+            Belum ada service
           </Text>
-          <Text className="mt-2 text-center font-maison text-sm text-neutral-500">
+          <Text className="mt-2 text-center font-maison text-sm leading-5 text-slate-500">
             Setelah melakukan service, history akan muncul di sini.
           </Text>
         </View>
@@ -53,6 +67,7 @@ export default function HistoryMotorScreen() {
       {!loading &&
         history.map((service) => {
           const isRingan = service.service_type === 'Service Ringan';
+          const accent = isRingan ? '#22D3EE' : '#FACC15';
 
           return (
             <TouchableOpacity
@@ -65,20 +80,21 @@ export default function HistoryMotorScreen() {
                 })
               }
               activeOpacity={0.85}
-              className="mb-3 flex-row items-center justify-between rounded-[20px] bg-[#161616] p-4">
-              <View className="flex-row items-center">
+              className="mb-3 flex-row items-center justify-between rounded-2xl border border-[#1F3354] bg-[#0D1728] p-4"
+              style={{ borderLeftWidth: 3, borderLeftColor: accent }}>
+              <View className="flex-1 flex-row items-center">
                 <View
-                  className={`rounded-xl p-2.5 ${isRingan ? 'bg-[#34D399]/15' : 'bg-[#FBBF24]/15'}`}>
-                  {isRingan ? (
-                    <Droplet size={24} color="#34D399" />
-                  ) : (
-                    <Wrench size={24} color="#FBBF24" />
-                  )}
+                  className="h-10 w-10 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: `${accent}18` }}>
+                  <Wrench size={19} color={accent} />
                 </View>
-                <View className="ml-3">
-                  <Text className="font-maisonBold text-lg text-white">{service.service_type}</Text>
-                  <Text className="mt-0.5 font-maison text-sm text-neutral-500">
-                    {new Date(service.service_date).toDateString()}
+                <View className="ml-3 flex-1">
+                  <Text className="font-maisonBold text-base text-white">
+                    {service.service_type}
+                  </Text>
+                  <Text className="mt-1 font-maison text-xs text-slate-500">
+                    {formatDate(service.service_date)}
+                    {service.total_components ? `  ·  ${service.total_components} komponen` : ''}
                   </Text>
                 </View>
               </View>

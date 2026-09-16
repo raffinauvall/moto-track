@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { Mail, Lock, Bike } from 'lucide-react-native';
+import { Bike, Mail, Lock } from 'lucide-react-native';
 import { useState } from 'react';
 import { login } from '@/api/auth/login';
 import { ToastService } from '@/utils/toastService';
@@ -22,28 +22,28 @@ export default function LoginScreen({ navigation }: any) {
     }
   };
   return (
-    <View className="h-screen justify-center bg-[#0A0A0A] px-7">
+    <View className="flex-1 bg-[#070B12] px-6 pb-10 pt-16">
       {/* Logo + Header */}
-      <View className="mb-12 items-start">
-        <View className="mb-6 h-16 w-16 items-center justify-center rounded-[20px] bg-[#34D399]/10">
-          <Bike size={32} color="#34D399" />
+      <View className="mb-10 items-start">
+        <View className="mb-6 h-14 w-14 items-center justify-center rounded-2xl border border-[#243244] bg-[#111A27]">
+          <Bike size={28} color="#22D3EE" strokeWidth={1.8} />
         </View>
-        <Text className="font-maisonBold text-4xl tracking-wide text-white">
-          Selamat Datang di Moto Tracker
+        <Text className="font-maisonBold text-4xl leading-[44px] text-white">Welcome back</Text>
+        <Text className="mt-2 font-maison text-base text-slate-400">
+          Masuk ke garage digital lo.
         </Text>
-        <Text className="mt-2 font-maison text-base text-neutral-500">Masuk untuk melanjutkan</Text>
       </View>
 
       {/* Form */}
-      <View className="space-y-6">
+      <View className="rounded-3xl border border-[#243244] bg-[#111A27] p-5">
         {/* Email Input */}
-        <View>
-          <Text className="mb-2 font-maison text-sm text-neutral-300">Email</Text>
-          <View className="flex-row items-center rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
-            <Mail size={20} color="#a3a3a3" />
+        <View className="mb-5">
+          <Text className="mb-2 font-maison text-sm text-slate-300">Email</Text>
+          <View className="flex-row items-center rounded-2xl border border-[#243244] bg-[#070B12] px-4 py-4">
+            <Mail size={20} color="#64748B" />
             <TextInput
               placeholder="email@example.com"
-              placeholderTextColor="#737373"
+              placeholderTextColor="#475569"
               className="ml-3 flex-1 font-maison text-base text-white"
               value={email}
               onChangeText={setEmail}
@@ -55,12 +55,12 @@ export default function LoginScreen({ navigation }: any) {
 
         {/* Password Input */}
         <View>
-          <Text className="mb-2 font-maison text-sm text-neutral-300">Password</Text>
-          <View className="flex-row items-center rounded-2xl border border-neutral-800 bg-[#161616] px-4 py-4">
-            <Lock size={20} color="#a3a3a3" />
+          <Text className="mb-2 font-maison text-sm text-slate-300">Password</Text>
+          <View className="flex-row items-center rounded-2xl border border-[#243244] bg-[#070B12] px-4 py-4">
+            <Lock size={20} color="#64748B" />
             <TextInput
               placeholder="••••••••"
-              placeholderTextColor="#737373"
+              placeholderTextColor="#475569"
               secureTextEntry
               className="ml-3 flex-1 font-maison text-base text-white"
               value={password}
@@ -72,18 +72,18 @@ export default function LoginScreen({ navigation }: any) {
 
       {/* Login Button */}
       <TouchableOpacity
-        className="mt-8 rounded-[20px] bg-[#34D399] py-4"
+        className="mt-8 rounded-[22px] bg-cyan-400 py-5"
         activeOpacity={0.85}
         onPress={handleLogin}>
-        <Text className="text-center font-maisonBold text-lg text-[#052E2B]">Login</Text>
+        <Text className="text-center font-maisonBold text-lg text-[#042F3A]">Login</Text>
       </TouchableOpacity>
 
       {/* Footer */}
       <View className="mt-6 flex-row justify-center">
-        <Text className="font-maison text-base text-neutral-500">Belum punya akun?</Text>
+        <Text className="font-maison text-base text-slate-500">Belum punya akun?</Text>
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
-          <Text className="ml-2 font-maisonBold text-[#34D399]">Register</Text>
+          <Text className="ml-2 font-maisonBold text-cyan-300">Register</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,45 +1,39 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Bike } from 'lucide-react-native';
 
 export default function WelcomeScreen({ navigation }: any) {
   return (
-    <LinearGradient
-      colors={['#0A0A0A', '#0f172a', '#111827']} // dari black ke slate
-      className="h-screen">
-      {/* Top Illustration */}
-      <View className="absolute top-24 w-full items-center">
-        <View className="h-44 w-44 items-center justify-center rounded-full bg-[#34D399]/10">
-          <Bike size={110} color="#34D399" />
+    <View className="flex-1 bg-[#070B12] px-6 pb-10 pt-16">
+      <View className="items-center">
+        <View className="h-20 w-20 items-center justify-center rounded-[24px] border border-[#243244] bg-[#111A27] p-3">
+          <Bike size={34} color="#22D3EE" strokeWidth={1.8} />
         </View>
+        <Text className="mt-5 font-maisonBold text-xl text-white">MotoTrack</Text>
       </View>
 
-      {/* Content */}
-      <View className="flex-1 justify-end px-7 pb-28">
-        <Text className="mb-4 font-maisonBold text-5xl tracking-wide text-white">
-          Selamat Datang
+      <View className="mt-auto">
+        <View className="mb-5 h-1 w-12 rounded-full bg-cyan-400" />
+        <Text className="font-maisonBold text-4xl leading-[44px] text-white">
+          Rawat motor.{'\n'}Nikmati perjalanan.
         </Text>
-        <Text className="mb-10 font-maison text-base text-neutral-400">
-          Pantau jarak tempuh dan jadwal ganti oli motormu dengan mudah dan stylish.
+        <Text className="mt-3 font-maison text-base leading-6 text-slate-400">
+          Catat servis, pantau kondisi, dan simpan riwayat perjalanan dalam satu tempat.
         </Text>
 
-        {/* Buttons */}
-        <View className="space-y-4">
-          <TouchableOpacity
-            className="mb-3 rounded-[24px] bg-[#34D399] py-5 shadow-2xl"
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('Login')}>
-            <Text className="text-center font-maisonBold text-lg text-[#052E2B]">Login</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Login')}
+          className="mt-8 rounded-2xl bg-cyan-400 py-4"
+          activeOpacity={0.85}>
+          <Text className="text-center font-maisonBold text-base text-[#042F3A]">Login</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            className="rounded-[24px] border border-[#34D399] py-5"
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('Register')}>
-            <Text className="text-center font-maisonBold text-lg text-[#34D399]">Register</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Register')}
+          className="mt-3 rounded-2xl border border-[#243244] bg-[#111A27] py-4"
+          activeOpacity={0.85}>
+          <Text className="text-center font-maisonBold text-base text-cyan-300">Register</Text>
+        </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 }

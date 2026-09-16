@@ -7,6 +7,7 @@ type WidgetProps = {
   label: string;
   color: string;
   Icon: any;
+  style?: any;
 };
 
 export default function CircularWidget({
@@ -15,27 +16,64 @@ export default function CircularWidget({
   label,
   color,
   Icon,
-  style, // tambahin prop style
-}: WidgetProps & { style?: any }) {
-  const radius = 48;
-  const strokeWidth = 8;
-  const size = 160;
+  style,
+}: WidgetProps) {
+  const radius = 46;
+  const strokeWidth = 7;
+  const size = 150;
   const center = size / 2;
 
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(current / max, 1);
   const strokeDashoffset = circumference * (1 - progress);
 
+  const pct = Math.round(progress * 100);
+
   return (
     <View
-      style={style} // pake style dari luar
-      className="mb-4 items-center rounded-[28px] bg-[#161616] p-4">
+      style={[
+        {
+          alignItems: 'center',
+          borderRadius: 22,
+          borderWidth: 1,
+          borderColor: `${color}25`,
+          backgroundColor: '#0D1728',
+          padding: 14,
+          marginBottom: 4,
+          overflow: 'hidden',
+        },
+        style,
+      ]}>
+      {/* Subtle glow blob */}
+      <View
+        style={{
+          position: 'absolute', top: -20, right: -20,
+          width: 80, height: 80, borderRadius: 40,
+          backgroundColor: color, opacity: 0.06,
+        }}
+      />
+
       {/* Header */}
-      <View className="mb-2 flex-row items-center justify-center gap-2.5">
-        <View className="rounded-xl bg-[#1E1E1E] p-2">
-          <Icon color={color} size={22} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, width: '100%' }}>
+        <View
+          style={{
+            width: 30, height: 30, borderRadius: 8,
+            backgroundColor: `${color}18`,
+            borderWidth: 1, borderColor: `${color}25`,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+          <Icon color={color} size={16} />
         </View>
-        <Text className="font-maisonBold text-sm text-white">{label}</Text>
+        <Text
+          style={{
+            fontFamily: 'MaisonNeue-Bold',
+            fontSize: 12,
+            color: '#E2E8F0',
+            flex: 1,
+          }}
+          numberOfLines={1}>
+          {label}
+        </Text>
       </View>
 
       {/* Circle */}
@@ -46,7 +84,7 @@ export default function CircularWidget({
               cx={center}
               cy={center}
               r={radius}
-              stroke="#2A2A2A"
+              stroke="#0A1929"
               strokeWidth={strokeWidth}
               fill="none"
             />
@@ -64,12 +102,14 @@ export default function CircularWidget({
           </G>
         </Svg>
 
-        {/* Text */}
-        <View className="absolute inset-0 items-center justify-center">
-          <Text className="font-maisonBold text-[22px] text-white">
-            {current}/{max}
+        {/* Center text */}
+        <View style={{ position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 20, color: '#fff' }}>
+            {pct}<Text style={{ fontSize: 12, color: '#64748B' }}>%</Text>
           </Text>
-          <Text className="font-maison text-xs text-neutral-500">km</Text>
+          <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 10, color: '#475569', marginTop: 2 }}>
+            {current}/{max} km
+          </Text>
         </View>
       </View>
     </View>

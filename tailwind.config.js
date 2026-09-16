@@ -7,15 +7,15 @@ module.exports = {
     extend: {
       colors: {
         app: {
-          bg: '#0A0A0A',
-          surface: '#161616',
-          surfaceAlt: '#1E1E1E',
-          border: '#2A2A2A',
+          bg: '#050B18',
+          surface: '#0D1728',
+          surfaceAlt: '#12223A',
+          border: '#1F3354',
         },
         brand: {
-          DEFAULT: '#34D399',
-          soft: '#A7F3D0',
-          dark: '#052E2B',
+          DEFAULT: '#22D3EE',
+          soft: '#A5F3FC',
+          dark: '#042F3A',
         },
       },
       fontFamily: {
@@ -26,7 +26,7 @@ module.exports = {
       },
       boxShadow: {
         card: '0 4px 24px rgba(0, 0, 0, 0.35)',
-        glow: '0 0 20px rgba(52, 211, 153, 0.25)',
+        glow: '0 0 28px rgba(34, 211, 238, 0.24)',
       },
     },
   },

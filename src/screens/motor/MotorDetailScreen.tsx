@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { ArrowLeft, Droplet, Zap, Wrench, Plus } from 'lucide-react-native';
+import { ArrowLeft, Droplet, Zap, Wrench, Plus, Activity } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { getComponents } from '@/api/motorComponent/getComponents';
 import { toggleComponentPin } from '@/api/motorComponent/toggleComponentPin';
@@ -57,45 +57,127 @@ export default function MotorDetailScreen({ route, navigation }: any) {
 
   const status = getStatus(health);
 
+  const healthColor =
+    health >= 70 ? '#22C55E' : health >= 40 ? '#FACC15' : '#EF4444';
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0A0A' }}>
+    <View style={{ flex: 1, backgroundColor: '#050B18' }}>
       <ScrollView
         contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}>
         {/* ================= HEADER ================= */}
-        <View className="mb-6 flex-row items-center">
+        <View className="mb-6 flex-row items-center pt-4">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="rounded-full border border-neutral-800 bg-[#161616] p-2.5">
-            <ArrowLeft size={22} color="#fff" />
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: '#1F3354',
+              backgroundColor: '#0D1728',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <ArrowLeft size={20} color="#94A3B8" />
           </TouchableOpacity>
-          <Text className="ml-4 font-maisonBold text-xl text-white">Motor Detail</Text>
+          <Text className="ml-4 font-maisonBold text-lg text-white">Motor Detail</Text>
         </View>
 
         {/* ================= MOTOR CARD ================= */}
-        <View className="mb-8 overflow-hidden rounded-[28px] bg-[#161616] p-6">
-          <View className="absolute -right-10 -top-16 h-40 w-40 rounded-full bg-[#34D399] opacity-10" />
+        <View
+          className="mb-6 overflow-hidden rounded-[28px] p-6"
+          style={{ backgroundColor: '#0D1728', borderWidth: 1, borderColor: `${healthColor}30` }}>
+          {/* Glow blobs */}
+          <View
+            style={{
+              position: 'absolute', top: -30, right: -30,
+              width: 120, height: 120, borderRadius: 60,
+              backgroundColor: healthColor, opacity: 0.08,
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute', bottom: -20, left: -20,
+              width: 80, height: 80, borderRadius: 40,
+              backgroundColor: '#22D3EE', opacity: 0.06,
+            }}
+          />
+
+          {/* Status row */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <View
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 5,
+                backgroundColor: `${healthColor}18`,
+                borderWidth: 1, borderColor: `${healthColor}35`,
+                borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4,
+              }}>
+              <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: healthColor }} />
+              <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 10, color: healthColor }}>
+                {status.label.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
           <Text className="font-maisonBold text-2xl text-white">{motor.name}</Text>
-          <View className="mt-3 flex-row items-center gap-2">
-            <View className="h-2 w-2 rounded-full" style={{ backgroundColor: status.color }} />
-            <Text className="font-maison text-sm text-neutral-400">Health: {health}%</Text>
-            <Text className="font-maisonBold text-sm" style={{ color: status.color }}>
-              {status.label}
+          <Text style={{ fontSize: 13, color: '#64748B', fontFamily: 'MaisonNeue-Book', marginTop: 2 }}>
+            {motor.brand}
+          </Text>
+
+          {/* Health meter */}
+          <View style={{ marginTop: 20 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Activity size={13} color="#64748B" />
+                <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 12, color: '#64748B' }}>
+                  Motor Health
+                </Text>
+              </View>
+              <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 13, color: healthColor }}>
+                {health}%
+              </Text>
+            </View>
+            <View style={{ height: 8, backgroundColor: '#0A1929', borderRadius: 4, overflow: 'hidden' }}>
+              <View
+                style={{
+                  width: `${health}%`,
+                  height: '100%',
+                  backgroundColor: healthColor,
+                  borderRadius: 4,
+                }}
+              />
+            </View>
+            <Text style={{ fontSize: 11, color: '#475569', marginTop: 6, fontFamily: 'MaisonNeue-Book' }}>
+              {status.note}
             </Text>
           </View>
-          <Text className="mt-1 text-xs text-neutral-500">{status.note}</Text>
         </View>
 
-        {/* ================= COMPONENTS ================= */}
-        <Text className="mb-4 font-maisonBold text-lg text-white">Components</Text>
+        {/* ================= COMPONENTS HEADER ================= */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <Text className="font-maisonBold text-base text-white">Components</Text>
+          <Text style={{ fontSize: 12, color: '#475569', fontFamily: 'MaisonNeue-Book' }}>
+            {components.length} parts
+          </Text>
+        </View>
 
-        {loading && <Text className="mb-4 font-maison text-neutral-400">Loading...</Text>}
-
-        {!loading && components.length === 0 && (
-          <Text className="mb-4 font-maison text-neutral-500">No components found</Text>
+        {loading && (
+          <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+            <Text style={{ fontFamily: 'MaisonNeue-Book', fontSize: 14, color: '#475569' }}>Loading...</Text>
+          </View>
         )}
 
-        {/* ================= GRID FIX ================= */}
+        {!loading && components.length === 0 && (
+          <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+            <Wrench size={32} color="#1F3354" />
+            <Text style={{ marginTop: 12, fontFamily: 'MaisonNeue-Book', fontSize: 14, color: '#475569' }}>
+              No components yet
+            </Text>
+          </View>
+        )}
+
+        {/* ================= GRID ================= */}
         <View
           style={{
             flexDirection: 'row',
@@ -104,7 +186,9 @@ export default function MotorDetailScreen({ route, navigation }: any) {
             rowGap: 16,
           }}>
           {components.map((comp) => {
-            const Icon = comp.name === 'Oil' ? Droplet : comp.name === 'Spark Plug' ? Zap : Wrench;
+            const Icon = comp.name === 'Oil' || comp.name === 'Oli' ? Droplet
+              : comp.name === 'Spark Plug' || comp.name === 'Busi' ? Zap
+              : Wrench;
 
             const ratio = 1 - comp.current_value / comp.max_value;
             const color = ratio >= 0.8 ? '#22C55E' : ratio >= 0.5 ? '#FACC15' : '#EF4444';
@@ -114,16 +198,11 @@ export default function MotorDetailScreen({ route, navigation }: any) {
             return (
               <View
                 key={comp.id}
-                style={{
-                  width: '48%',
-                }}>
-                {/* 🔥 CLICK KE EDIT */}
+                style={{ width: '48%' }}>
                 <TouchableOpacity
                   activeOpacity={0.85}
                   onPress={() =>
-                    navigation.navigate('EditComponent', {
-                      component: comp,
-                    })
+                    navigation.navigate('EditComponent', { component: comp })
                   }>
                   <View>
                     <CircularWidget
@@ -141,15 +220,20 @@ export default function MotorDetailScreen({ route, navigation }: any) {
                         position: 'absolute',
                         top: 8,
                         right: 8,
-                        backgroundColor: isPinned ? '#34D399' : '#1f2937',
+                        backgroundColor: isPinned ? '#22D3EE20' : '#0D1728',
+                        borderWidth: 1,
+                        borderColor: isPinned ? '#22D3EE50' : '#1F3354',
                         paddingHorizontal: 10,
-                        paddingVertical: 5,
+                        paddingVertical: 4,
                         borderRadius: 999,
                       }}>
                       <Text
-                        className="font-maisonBold text-xs"
-                        style={{ color: isPinned ? '#052E2B' : '#fff' }}>
-                        {isPinned ? 'Unpin' : 'Pin'}
+                        style={{
+                          fontFamily: 'MaisonNeue-Bold',
+                          fontSize: 10,
+                          color: isPinned ? '#22D3EE' : '#64748B',
+                        }}>
+                        {isPinned ? '📌 Pinned' : 'Pin'}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -162,14 +246,23 @@ export default function MotorDetailScreen({ route, navigation }: any) {
         {/* ================= ADD COMPONENT ================= */}
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() =>
-            navigation.navigate('AddComponent', {
-              motorId: motor.id,
-            })
-          }
-          className="mt-6 flex-row items-center justify-center gap-2 rounded-[24px] border border-dashed border-neutral-600 py-5">
-          <Plus size={18} color="#9CA3AF" />
-          <Text className="font-maisonBold text-neutral-400">Add Component</Text>
+          onPress={() => navigation.navigate('AddComponent', { motorId: motor.id })}
+          style={{
+            marginTop: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderStyle: 'dashed',
+            borderColor: '#1F3354',
+            paddingVertical: 18,
+          }}>
+          <Plus size={16} color="#475569" />
+          <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 13, color: '#475569' }}>
+            Add Component
+          </Text>
         </TouchableOpacity>
 
         {/* ================= SERVICE MOTOR ================= */}
@@ -181,9 +274,22 @@ export default function MotorDetailScreen({ route, navigation }: any) {
               motorName: motor.name,
             })
           }
-          className="mt-4 flex-row items-center justify-center gap-2 rounded-[24px] bg-[#34D399] py-5">
-          <Wrench size={20} color="#052e2b" />
-          <Text className="font-maisonBold text-base text-[#052e2b]">Service Motor</Text>
+          style={{
+            marginTop: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            borderRadius: 20,
+            backgroundColor: '#22C55E15',
+            borderWidth: 1,
+            borderColor: '#22C55E35',
+            paddingVertical: 18,
+          }}>
+          <Wrench size={18} color="#22C55E" />
+          <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 15, color: '#22C55E' }}>
+            Service Motor
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

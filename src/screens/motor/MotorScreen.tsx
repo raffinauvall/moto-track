@@ -101,7 +101,7 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
   };
 
   return (
-    <View className="flex-1 bg-[#0A0A0A]">
+    <View className="flex-1 bg-[#050B18]">
       {/* SCROLL AREA */}
       <ScrollView
         contentContainerStyle={{
@@ -122,40 +122,113 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
             return (
               <View
                 key={motor.id}
-                className="w-full overflow-hidden rounded-[24px] bg-[#161616] p-5"
+                className="w-full overflow-hidden rounded-[24px] bg-[#0D1728]"
                 style={{
-                  borderLeftWidth: 3,
-                  borderLeftColor: status.color,
+                  borderWidth: 1,
+                  borderColor: motor.is_active ? `${status.color}40` : '#1F3354',
                 }}>
+                {/* Active badge */}
+                {motor.is_active && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 16,
+                      right: 16,
+                      backgroundColor: '#22D3EE18',
+                      borderWidth: 1,
+                      borderColor: '#22D3EE40',
+                      borderRadius: 999,
+                      paddingHorizontal: 10,
+                      paddingVertical: 3,
+                    }}>
+                    <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 10, color: '#22D3EE' }}>
+                      ACTIVE
+                    </Text>
+                  </View>
+                )}
+
                 <TouchableOpacity
                   activeOpacity={0.9}
-                  onPress={() => navigation.navigate('MotorDetail', { motor })}>
-                  <Text className="font-maisonBold text-xl text-white">{motor.name}</Text>
-
-                  <MotorHealthBar value={motor.health ?? 100} />
-
-                  <Text className="mt-3 text-xs text-neutral-500">{status.note}</Text>
-                </TouchableOpacity>
-
-                <View className="mt-4 flex-row items-center gap-3 border-t border-neutral-800 pt-4">
-                  <View className="mr-auto flex-row items-center gap-1.5">
-                    <StatusIcon value={motor.health ?? 100} />
-                    <Text className="font-maisonBold text-xs" style={{ color: status.color }}>
+                  onPress={() => navigation.navigate('MotorDetail', { motor })}
+                  style={{ padding: 20 }}>
+                  {/* Status strip */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: status.color }} />
+                    <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 11, color: status.color }}>
                       {status.label}
                     </Text>
                   </View>
 
-                  <TouchableOpacity onPress={() => navigation.navigate('AddEditMotor', { motor })}>
-                    <Text className="font-maisonBold text-xs text-[#FACC15]">Edit</Text>
+                  <Text className="font-maisonBold text-xl text-white">{motor.name}</Text>
+                  <Text style={{ fontSize: 12, color: '#64748B', marginTop: 2, fontFamily: 'MaisonNeue-Book' }}>
+                    {motor.brand}
+                  </Text>
+
+                  <MotorHealthBar value={motor.health ?? 100} />
+                </TouchableOpacity>
+
+                {/* Action footer */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderTopWidth: 1,
+                    borderTopColor: '#1A2C47',
+                    paddingHorizontal: 20,
+                    paddingVertical: 12,
+                    gap: 6,
+                  }}>
+                  {/* Edit */}
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('AddEditMotor', { motor })}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 5,
+                      backgroundColor: '#FACC1515',
+                      borderWidth: 1,
+                      borderColor: '#FACC1530',
+                      borderRadius: 999,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                    }}>
+                    <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 11, color: '#FACC15' }}>Edit</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => confirmDelete(motor.id, motor.name)}>
-                    <Text className="font-maisonBold text-xs text-[#EF4444]">Delete</Text>
+                  {/* Delete */}
+                  <TouchableOpacity
+                    onPress={() => confirmDelete(motor.id, motor.name)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 5,
+                      backgroundColor: '#EF444415',
+                      borderWidth: 1,
+                      borderColor: '#EF444430',
+                      borderRadius: 999,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                    }}>
+                    <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 11, color: '#EF4444' }}>Delete</Text>
                   </TouchableOpacity>
 
+                  {/* Set Active */}
                   {!motor.is_active && (
-                    <TouchableOpacity onPress={() => handleSetActive(motor)}>
-                      <Text className="font-maisonBold text-xs text-[#34D399]">Set Active</Text>
+                    <TouchableOpacity
+                      onPress={() => handleSetActive(motor)}
+                      style={{
+                        marginLeft: 'auto',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 5,
+                        backgroundColor: '#22D3EE15',
+                        borderWidth: 1,
+                        borderColor: '#22D3EE35',
+                        borderRadius: 999,
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                      }}>
+                      <Text style={{ fontFamily: 'MaisonNeue-Bold', fontSize: 11, color: '#22D3EE' }}>Set Active</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -169,12 +242,12 @@ export default function MotorScreen({ setIndex }: MotorScreenProps) {
       <TouchableOpacity
         onPress={() => navigation.navigate('AddEditMotor')}
         activeOpacity={0.85}
-        className="absolute right-6 h-16 w-16 items-center justify-center rounded-full bg-[#34D399] shadow-lg"
+        className="absolute right-6 h-16 w-16 items-center justify-center rounded-full bg-cyan-400 shadow-lg"
         style={{
           bottom: insets.bottom + 90,
           elevation: 8,
         }}>
-        <Plus size={26} color="#052E2B" />
+        <Plus size={26} color="#042F3A" />
       </TouchableOpacity>
     </View>
   );
